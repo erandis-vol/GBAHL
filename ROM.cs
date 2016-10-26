@@ -6,31 +6,46 @@ using System.Text;
 
 namespace Lost
 {
+    using Encoding = TextTable.Encoding;
+
     /// <summary>
     /// Reads and writes primitive data types to/from a ROM.
     /// </summary>
     public class ROM : IDisposable
     {
         private const int BUFFER_SIZE = 8; // tune as needed, 8 is all we need for 64-bit integers
+        private byte[] buffer = new byte[BUFFER_SIZE];
 
         private Stream stream;
-        private byte[] buffer = new byte[BUFFER_SIZE];
 
         private bool disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ROM"/> class based on the specified file.
+        /// Initializes a new instance of the <see cref="ROM"/> class based on the specified file,
+        /// with the default access and sharing options.
         /// </summary>
         /// <param name="filePath">The file.</param>
         /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
         /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public ROM(string filePath)
+        public ROM(string filePath) : this(filePath, FileAccess.ReadWrite, FileShare.ReadWrite)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ROM"/> class based on the specified file,
+        /// with the specified read/write access and the the specified sharing option.
+        /// </summary>
+        /// <param name="filePath">The file.</param>
+        /// <param name="access">A <see cref="FileAccess"/> value that specifies the actions that can be performed on the ROM.</param>
+        /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the ROM.</param>
+        /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
+        /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
+        public ROM(string filePath, FileAccess access, FileShare share)
         {
             try
             {
-                stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
             }
-            catch// (Exception e)
+            catch //(Exception e)
             {
                 throw new FileNotFoundException($"Unable to open {filePath}!");
             }
@@ -46,14 +61,14 @@ namespace Lost
         /// Initializes a new instance of the <see cref="ROM"/> class based on the specified <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        /// <exception cref="ArgumentException">stream is cannot read or write; stream is longer than 0x1FFFFFF bytes.</exception>
+        /// <exception cref="ArgumentException">stream is longer than 0x1FFFFFF bytes.</exception>
         public ROM(Stream stream)
         {
             if (stream.Length > 0x1FFFFFF)
                 throw new ArgumentException("stream", "Stream is too large for a ROM!");
 
-            if (!stream.CanRead || !stream.CanWrite)
-                throw new ArgumentException("stream", "Stream is not read-write!");
+            //if (!stream.CanRead || !stream.CanWrite)
+            //    throw new ArgumentException("stream", "Stream is not read-write!");
 
             this.stream = stream;
         }
@@ -76,6 +91,15 @@ namespace Lost
         }
 
         /// <summary>
+        /// Forces data to be written to the underlying disk.
+        /// </summary>
+        /// <exception cref="IOException">idk</exception>
+        public void Flush()
+        {
+            stream.Flush();
+        }
+
+        /// <summary>
         /// Sets the position of the stream.
         /// </summary>
         /// <param name="offset">A byte offset relative to 0.</param>
@@ -94,7 +118,7 @@ namespace Lost
         }
 
         // safely fill the buffer from the stream
-        void FillBuffer(int bytes)
+        private void FillBuffer(int bytes)
         {
             if (bytes <= 0 || bytes > stream.Length)
                 throw new Exception();
@@ -122,7 +146,7 @@ namespace Lost
         }
 
         // safely read the entire stream into a buffer
-        byte[] ReadAllBytes()
+        private byte[] ReadAllBytes()
         {
             // preserve original position
             long originalPosition = stream.Position;
@@ -136,7 +160,7 @@ namespace Lost
             {
                 int n = stream.Read(buffer, bytesRead, buffer.Length - bytesRead);
                 if (n == 0)
-                    throw new Exception("Unable to read entire ROM!");
+                    throw new EndOfStreamException("Unable to read entire ROM!");
                 bytesRead += n;
             } while (bytesRead < buffer.Length);
 
@@ -148,7 +172,7 @@ namespace Lost
         }
 
         // safe write the entire stream from a buffer
-        void WriteAllBytes(byte[] buffer)
+        private void WriteAllBytes(byte[] buffer)
         {
             // preserve original position
             long originalPosition = stream.Position;
@@ -320,7 +344,7 @@ namespace Lost
         }*/
 
         /// <summary>
-        /// Reads and validates a 4-byte ROM pointer from the stream and advances the position by four bytes,
+        /// Reads and validates a 4-byte ROM pointer from the stream and advances the position by four bytes.
         /// </summary>
         /// <returns>The offset pointed to if valid; -1 otherwise.</returns>
         public int ReadPointer()
@@ -335,7 +359,6 @@ namespace Lost
             // a pointer must be between 0x0 and 0x1FFFFFF to be valid on the GBA
             // ROM pointer format is OFFSET | 0x8000000, so 0x8000000 <= POINTER <= 0x9FFFFFF
             if (ptr < 0x8000000 || ptr > 0x9FFFFFF)
-                //throw new Exception($"Bad pointer at 0x{pos - 4:X6}");
                 return -1;
 
             // easy way to extract
@@ -354,11 +377,11 @@ namespace Lost
         }*/
 
         /// <summary>
-        /// Reads an FF-terminated string using the given <see cref="CharacterEncoding"/> and advances the position.
+        /// Reads an FF-terminated string using the given <see cref="Encoding"/> and advances the position.
         /// </summary>
         /// <param name="encoding">The encoding of the string.</param>
         /// <returns></returns>
-        public string ReadText(CharacterEncoding encoding)
+        public string ReadText(Encoding encoding)
         {
             // read string until FF
             List<byte> buffer = new List<byte>();
@@ -373,17 +396,17 @@ namespace Lost
         }
 
         /// <summary>
-        /// Reads a string of the given length using the given <see cref="CharacterEncoding"/> and advances the position by that many bytes.
+        /// Reads a string of the given length using the given <see cref="Encoding"/> and advances the position by that many bytes.
         /// </summary>
         /// <param name="length">The length of the string.</param>
         /// <param name="encoding">The encoding of the string.</param>
         /// <returns></returns>
-        public string ReadText(int length, CharacterEncoding encoding)
+        public string ReadText(int length, Encoding encoding)
         {
             return TextTable.GetString(ReadBytes(length), encoding);
         }
 
-        public string[] ReadTextTable(int stringLength, int tableSize, CharacterEncoding encoding)
+        public string[] ReadTextTable(int stringLength, int tableSize, Encoding encoding)
         {
             var table = new string[tableSize];
             for (int i = 0; i < tableSize; i++)
@@ -393,13 +416,13 @@ namespace Lost
         }
 
         /// <summary>
-        /// If possible, reads L7ZZ compressed bytes from the stream into a byte array and advances the position.
+        /// If possible, reads LZ77 compressed bytes from the stream into a byte array and advances the position.
         /// </summary>
-        /// <returns></returns>
-        public byte[] ReadL7ZZCompressedBytes()
+        /// <returns>The decompressed bytes.</returns>
+        public byte[] ReadLZ77CompressedBytes()
         {
             // check if actually compressed
-            if (PeekL7ZZCompressed())
+            if (!PeekLZ77Compressed())
                 return new byte[0];
 
             // skip L7ZZ identifier
@@ -440,13 +463,18 @@ namespace Lost
             return buffer;
         }
 
-        public int ReadL7ZZCompressedSize()
+        /// <summary>
+        /// If possible, reads LZ77 compressed data and returns the number of bytes it occupied in the ROM.
+        /// </summary>
+        /// <returns></returns>
+        public int ReadLZ77CompressedSize()
         {
-            if (ReadByte() != 0x10) return -1;
+            if (!PeekLZ77Compressed())
+                return -1;
 
             // read decompressed size
             var length = ReadInt24();
-            int count = 0;
+            int count = 4;
 
             // decompress the data
             int size = 0, pos = 0, flags = 0;
@@ -486,7 +514,7 @@ namespace Lost
         /// Returns whether the following data could be L7ZZ compressed.
         /// </summary>
         /// <returns><c>true</c> if it could be; <c>false</c> otherwise.</returns>
-        public bool PeekL7ZZCompressed()
+        public bool PeekLZ77Compressed()
         {
             return PeekByte() == 0x10;
         }
@@ -528,9 +556,9 @@ namespace Lost
         /// lol reads a compressed palette or something.
         /// </summary>
         /// <returns></returns>
-        public Color[] ReadL7ZZCompressedPalette()
+        public Color[] ReadLZ77CompressedPalette()
         {
-            var buffer = ReadL7ZZCompressedBytes();
+            var buffer = ReadLZ77CompressedBytes();
             var pal = new Color[buffer.Length / 2];
             for (int i = 0; i < pal.Length; i++)
             {
@@ -547,7 +575,7 @@ namespace Lost
         /// <summary>
         /// Writes a byte to the stream and advances the position by one byte.
         /// </summary>
-        /// <param name="value">The byte value to write.</param>
+        /// <param name="value">The <see cref="byte"/> value to write.</param>
         public void WriteByte(byte value)
         {
             stream.WriteByte(value);
@@ -556,12 +584,16 @@ namespace Lost
         /// <summary>
         /// Writes a signed byte to the stream and advances the position by one byte.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The <see cref="sbyte"/> value to write.</param>
         public void WriteSByte(sbyte value)
         {
             stream.WriteByte((byte)value);
         }
 
+        /// <summary>
+        /// Writes a 2-byte unsigned integer to the stream and advances the position by two bytes.
+        /// </summary>
+        /// <param name="value">The <see cref="ushort"/> value to write.</param>
         public void WriteUInt16(ushort value)
         {
             buffer[0] = (byte)value;
@@ -569,6 +601,10 @@ namespace Lost
             stream.Write(buffer, 0, 2);
         }
 
+        /// <summary>
+        /// Writes a 4-byte signed integer to the stream and advances the position by four bytes.
+        /// </summary>
+        /// <param name="value">The <see cref="int"/> value to write.</param>
         public void WriteInt32(int value)
         {
             buffer[0] = (byte)value;
@@ -578,6 +614,10 @@ namespace Lost
             stream.Write(buffer, 0, 4);
         }
 
+        /// <summary>
+        /// Writes a 4-byte unsigned integer to the stream and advances the position by four bytes.
+        /// </summary>
+        /// <param name="value">The <see cref="uint"/> value to write.</param>
         public void WriteUInt32(uint value)
         {
             buffer[0] = (byte)value;
@@ -587,6 +627,10 @@ namespace Lost
             stream.Write(buffer, 0, 4);
         }
 
+        /// <summary>
+        /// Writes an 8-byte unsigned integer to the stream and advances the position by eight bytes.
+        /// </summary>
+        /// <param name="value">The <see cref="ulong"/> value to write.</param>
         public void WriteUInt64(ulong value)
         {
             buffer[0] = (byte)value;
@@ -600,6 +644,11 @@ namespace Lost
             stream.Write(buffer, 0, 8);
         }
 
+        /// <summary>
+        /// Writes a <see cref="byte"/> array to the stream and advances the position by the length of the array.
+        /// </summary>
+        /// <param name="bytes">The <see cref="byte"/> array to write.</param>
+        /// <exception cref="ArgumentNullException">bytes is null.</exception>
         public void WriteBytes(byte[] bytes)
         {
             if (bytes == null)
@@ -608,17 +657,27 @@ namespace Lost
             stream.Write(bytes, 0, bytes.Length);
         }
 
-        // Write a byte value count number of times
+        /// <summary>
+        /// Writes a <see cref="byte"/> to the stream the specified number of times and advances the position by that many bytes.
+        /// </summary>
+        /// <param name="value">The <see cref="byte"/> value to write.</param>
+        /// <param name="count">The number of times to write the value.</param>
         public void WriteBytes(byte value, int count)
         {
             for (int i = 0; i < count; i++)
                 stream.WriteByte(value);
         }
 
+        /// <summary>
+        /// Writes a 4-byte pointer to the stream and advances the position by four bytes.
+        /// </summary>
+        /// <param name="offset">The offset of the pointer to write.</param>
+        /// <exception cref="ArgumentOutOfRangeException">offset is less than <c>0</c> or greater than <c>0x1FFFFFF</c>.</exception>
         public void WritePointer(int offset)
         {
             if (offset < 0 || offset > 0x1FFFFFF)
-                throw new Exception($"Offset 0x{offset:X7} too large or too small for a ROM pointer (0 <= offset <= 0x1FFFFFF)!");
+                throw new ArgumentOutOfRangeException(
+                    $"Offset 0x{offset:X7} too large or too small for a ROM pointer (0 <= offset <= 0x1FFFFFF)!");
 
             if (offset > 0)
                 WriteInt32(offset | 0x8000000);
@@ -626,18 +685,22 @@ namespace Lost
                 WriteInt32(0);
         }
 
+        /// <summary>
+        /// Writes a UTF-8 encoded string to the stream and advances the position.
+        /// </summary>
+        /// <param name="str">The <see cref="string"/> value to write.</param>
         public void WriteString(string str)
         {
             // utf8 encoded string
-            WriteBytes(Encoding.UTF8.GetBytes(str));
+            WriteBytes(System.Text.Encoding.UTF8.GetBytes(str));
         }
 
-        public void WriteText(string str, CharacterEncoding encoding)
+        public void WriteText(string str, Encoding encoding)
         {
             WriteBytes(TextTable.GetBytes(str, encoding));
         }
 
-        public void WriteText(string str, int length, CharacterEncoding encoding)
+        public void WriteText(string str, int length, Encoding encoding)
         {
             // convert string
             byte[] buffer = TextTable.GetBytes(str, encoding);
@@ -650,7 +713,7 @@ namespace Lost
             WriteBytes(buffer);
         }
 
-        public void WriteTextTable(string[] table, int entryLength, CharacterEncoding encoding)
+        public void WriteTextTable(string[] table, int entryLength, Encoding encoding)
         {
             foreach (var str in table)
                 WriteText(str, entryLength, encoding);
@@ -660,6 +723,15 @@ namespace Lost
 
         #region Search
 
+        /// <summary>
+        /// Finds free space of the given length in the <see cref="ROM"/>.
+        /// </summary>
+        /// <param name="length">The number of bytes needed.</param>
+        /// <param name="freespace">The freespace byte to search for. Default is <c>0xFF</c>.</param>
+        /// <param name="startOffset">The offset to start searching from. Default is <c>0</c>.</param>
+        /// <param name="alignment">The alignment of the offset to search for. Default is <c>1</c>, recommended is <c>4</c>.</param>
+        /// <exception cref="EndOfStreamException">if the entire ROM was not able to be read.</exception>
+        /// <returns>The offset of the freespace if found; -1 otherwise.</returns>
         public int FindFreeSpace(int length, byte freespace = 0xFF, int startOffset = 0, int alignment = 1)
         {
             // load search buffer
@@ -716,7 +788,7 @@ namespace Lost
 
                 if (match)
                 {
-                    Console.WriteLine("pointer at 0x{0:X7}", i);
+                    //Console.WriteLine("pointer at 0x{0:X7}", i);
 
                     for (int j = 0; j < 4; j++)
                         buffer[i++] = newPtr[j];
@@ -766,9 +838,12 @@ namespace Lost
             get { return stream.Position >= stream.Length; }
         }
 
-        // ROM specific properties
-        string name, code, maker;
+        // so we aren't continuously re-reading these properties
+        private string name, code, maker;
 
+        /// <summary>
+        /// Gets the 12 character name of the ROM specified by the header at offset 0xA0.
+        /// </summary>
         public string Name
         {
             get
@@ -785,6 +860,9 @@ namespace Lost
             }
         }
 
+        /// <summary>
+        /// Gets the 4 character code of the ROM specified by the header at offset 0xAC.
+        /// </summary>
         public string Code
         {
             get
@@ -801,6 +879,9 @@ namespace Lost
             }
         }
 
+        /// <summary>
+        /// Gets the 2 character maker code of the ROM specified by the header at offset 0xB0.
+        /// </summary>
         public string Maker
         {
             get
