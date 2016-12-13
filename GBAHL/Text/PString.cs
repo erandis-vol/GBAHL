@@ -5,7 +5,7 @@ using System.Linq;
 namespace GBAHL.Text
 {
     // Represents an encoded string.
-    public class Text
+    public class PString
     {
         //public static Table.Encoding DefaultEncoding = Table.Encoding.English;
 
@@ -13,19 +13,19 @@ namespace GBAHL.Text
         int originalSize;           // original size of string in bytes
         Table.Encoding encoding;    // table encoding for the string
 
-        public Text(string str, Table.Encoding encoding)
+        public PString(string str, Table.Encoding encoding)
         {
             this.str = str;
             this.originalSize = 0;
         }
 
-        public Text(string str, int originalSize, Table.Encoding encoding)
+        public PString(string str, int originalSize, Table.Encoding encoding)
         {
             this.str = str;
             this.originalSize = originalSize;
         }
 
-        public Text(byte[] buffer, Table.Encoding encoding)
+        public PString(byte[] buffer, Table.Encoding encoding)
         {
             str = Table.GetString(buffer, encoding);
             originalSize = buffer.Length;
@@ -36,7 +36,7 @@ namespace GBAHL.Text
             return new Text(str, DefaultEncoding);
         }*/
 
-        public static implicit operator string(Text t)
+        public static implicit operator string(PString t)
         {
             return t.str;
         }
@@ -44,7 +44,7 @@ namespace GBAHL.Text
         #region Properties
 
         /// <summary>
-        /// Gets or sets the <see cref="string"/> value of this <see cref="Text"/>.
+        /// Gets or sets the <see cref="string"/> value of this <see cref="PString"/>.
         /// </summary>
         public string Value
         {
@@ -53,7 +53,7 @@ namespace GBAHL.Text
         }
 
         /// <summary>
-        /// Gets the original size of this <see cref="Text"/> in bytes.
+        /// Gets the original size of this <see cref="PString"/> in bytes.
         /// </summary>
         public int OriginalSize
         {
@@ -61,7 +61,7 @@ namespace GBAHL.Text
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Table.Encoding"/> of this <see cref="Text"/>.
+        /// Gets or sets the <see cref="Table.Encoding"/> of this <see cref="PString"/>.
         /// </summary>
         public Table.Encoding Encoding
         {
