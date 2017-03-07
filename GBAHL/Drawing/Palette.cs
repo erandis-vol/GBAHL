@@ -7,10 +7,18 @@ using System.IO;
 
 namespace GBAHL.Drawing
 {
+    /// <summary>
+    /// Represents a collection of 16 or 256 colors.
+    /// </summary>
     public class Palette : IEnumerable<Color>
     {
         private Color[] colors;
 
+        /// <summary>
+        /// Creates a new <see cref="Palette"/> of the given size.
+        /// </summary>
+        /// <param name="size">The number of colors.</param>
+        /// <exception cref="ArgumentOutOfRangeException">if the size is no 16 or 256 colors.</exception>
         public Palette(int size)
         {
             if (size != 16 && size != 256)
@@ -19,6 +27,11 @@ namespace GBAHL.Drawing
             colors = new Color[size];
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Palette"/> from given <see cref="Color"/> array.
+        /// </summary>
+        /// <param name="colors"></param>
+        /// <exception cref="ArgumentException">if there are not 16 or 256 colors in the array.</exception>
         public Palette(Color[] colors)
         {
             if (colors.Length != 16 && colors.Length != 256)
@@ -27,6 +40,12 @@ namespace GBAHL.Drawing
             this.colors = colors;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Palette"/> from the specified palette file.
+        /// </summary>
+        /// <param name="filename">The palette file.</param>
+        /// <exception cref="Exception">if the file has an unsupported format (expects standard JASC palette).</exception>
+        /// <exception cref="Exception">the palette does not contain 16 or 256 colors.</exception>
         public Palette(string filename)
         {
             using (var sr = File.OpenText(filename))
@@ -56,6 +75,10 @@ namespace GBAHL.Drawing
             }
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Palette"/> from an indexed <see cref="Image"/>.
+        /// </summary>
+        /// <param name="image">The source image.</param>
         public Palette(Image image)
         {
             // Copy a palette from a source image
@@ -72,13 +95,18 @@ namespace GBAHL.Drawing
             else throw new Exception("Image is not indexed!");
         }
 
+        /// <summary>
+        /// Gets or sets the given <see cref="Color"/> in this <see cref="Palette"/>.
+        /// </summary>
+        /// <param name="index">The color's index.</param>
+        /// <returns>A color.</returns>
         public Color this[int index]
         {
             get
             {
                 if (index < 0 || index >= colors.Length)
                     throw new ArgumentOutOfRangeException("index");
-
+                
                 return colors[index];
             }
             set
@@ -90,6 +118,10 @@ namespace GBAHL.Drawing
             }
         }
 
+        /// <summary>
+        /// Saves this <see cref="Palette"/> to the given file.
+        /// </summary>
+        /// <param name="filename">The name of the file.</param>
         public void Save(string filename)
         {
             using (var sw = File.CreateText(filename))
@@ -103,26 +135,43 @@ namespace GBAHL.Drawing
             }
         }
 
+        /// <summary>
+        /// Returns an iterator that iterates through the <see cref="Palette"/>.
+        /// </summary>
+        /// <returns>A interator.</returns>
         public IEnumerator<Color> GetEnumerator()
         {
             return ((IEnumerable<Color>)colors).GetEnumerator();
         }
 
+        /// <summary>
+        /// Returns an iterator that iterates through the <see cref="Palette"/>.
+        /// </summary>
+        /// <returns>An interator.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<Color>)colors).GetEnumerator();
         }
 
+        /// <summary>
+        /// Gets the colors of this <see cref="Palette"/>.
+        /// </summary>
         public Color[] Colors
         {
             get { return colors; }
         }
 
+        /// <summary>
+        /// Gets the number of colors in this <see cref="Palette"/>.
+        /// </summary>
         public int Length
         {
             get { return colors.Length; }
         }
 
+        /// <summary>
+        /// A 16-color grayscale palette going from black to white.
+        /// </summary>
         public static Palette Grayscale16 = new Palette(new[]
         {
             Color.FromArgb(8, 8, 8),
@@ -143,6 +192,9 @@ namespace GBAHL.Drawing
             Color.FromArgb(248, 248, 248),
         });
 
+        /// <summary>
+        /// A 16-color grayscale palette going from white to black.
+        /// </summary>
         public static Palette Grayscale16Reversed = new Palette(new[]
         {
             Color.FromArgb(248, 248, 248),
