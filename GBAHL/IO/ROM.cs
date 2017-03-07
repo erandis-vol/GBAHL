@@ -99,7 +99,7 @@ namespace GBAHL.IO
         /// <summary>
         /// Forces data to be written to the underlying disk.
         /// </summary>
-        /// <exception cref="IOException">idk</exception>
+        /// <exception cref="IOException"></exception>
         public void Flush()
         {
             stream.Flush();
@@ -109,18 +109,28 @@ namespace GBAHL.IO
         /// Sets the position of the stream.
         /// </summary>
         /// <param name="offset">A byte offset relative to 0.</param>
-        public void Seek(int offset)
+        public int Seek(int offset)
         {
-            stream.Seek(offset, SeekOrigin.Begin);
+            return (int)stream.Seek(offset, SeekOrigin.Begin);
+        }
+
+        /// <summary>
+        /// Sets the position of the stream.
+        /// </summary>
+        /// <param name="offset">A byte offset relative to the origin parameter.</param>
+        /// <param name="origin">A value of type <see cref="SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
+        public int Seek(int offset, SeekOrigin origin)
+        {
+            return (int)stream.Seek(offset, origin);
         }
 
         /// <summary>
         /// Moves the position of the stream by the specified number of bytes.
         /// </summary>
         /// <param name="bytes">The number of bytes to move; sign determines direction.</param>
-        public void Skip(int bytes)
+        public int Skip(int bytes)
         {
-            stream.Seek(bytes, SeekOrigin.Current);
+            return (int)stream.Seek(bytes, SeekOrigin.Current);
         }
 
         // safely fill the buffer from the stream
