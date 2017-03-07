@@ -52,11 +52,13 @@ namespace GBAHL.IO
                 throw new FileNotFoundException($"Unable to open {filePath}!");
             }
 
+#if ENFORCE_ROM_SIZE
             if (stream.Length % 0x1000000 != 0)
             {
                 stream.Dispose();
                 throw new Exception($"File is not the correct size for a ROM!");
             }
+#endif
         }
 
         /// <summary>
@@ -66,8 +68,10 @@ namespace GBAHL.IO
         /// <exception cref="ArgumentException">stream is longer than 0x1FFFFFF bytes.</exception>
         public ROM(Stream stream)
         {
+#if ENFORCE_ROM_SIZE
             if (stream.Length % 0x1000000 != 0)
                 throw new ArgumentException("stream", "Stream is not the correct size for a ROM!");
+#endif
 
             //if (!stream.CanRead || !stream.CanWrite)
             //    throw new ArgumentException("stream", "Stream is not read-write!");
