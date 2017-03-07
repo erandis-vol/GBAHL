@@ -7,9 +7,19 @@ using System.Runtime.InteropServices;
 
 namespace GBAHL.Drawing
 {
+    /// <summary>
+    /// Specifies the number of bits used for a single pixel.
+    /// </summary>
     public enum BitDepth
     {
-        Four = 16, Eight = 256
+        /// <summary>
+        /// Specifies 4 bits per pixel, allowing up to 16 colors.
+        /// </summary>
+        Four = 16,
+        /// <summary>
+        /// Specifies 8 bits per pixel, allowing up to 256 colors.
+        /// </summary>
+        Eight = 256,
     }
 
     public class Sprite
@@ -17,18 +27,33 @@ namespace GBAHL.Drawing
         private Tile[] tiles;
         private BitDepth bitDepth;
 
+        /// <summary>
+        /// Creates a new <see cref="Sprite"/> of the given size (in tiles) and bit depth.
+        /// </summary>
+        /// <param name="width">The width in tiles.</param>
+        /// <param name="height">The height in tiles.</param>
+        /// <param name="bitDepth">The bit depth.</param>
         public Sprite(int width, int height, BitDepth bitDepth)
         {
             this.tiles = new Tile[width * height];
             this.bitDepth = bitDepth;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Sprite"/> for the given tiles and bit depth.
+        /// </summary>
+        /// <param name="tiles">The source tile data.</param>
+        /// <param name="bitDepth">The bit depth.</param>
         public Sprite(Tile[] tiles, BitDepth bitDepth)
         {
             this.tiles = tiles;
             this.bitDepth = bitDepth;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Sprite"/> from an indexed bitmap.
+        /// </summary>
+        /// <param name="bmp"></param>
         public Sprite(Bitmap bmp)
         {
             // TODO: maybe help the user out and index their image for them
@@ -134,6 +159,9 @@ namespace GBAHL.Drawing
             bmp.UnlockBits(bmpData);
         }
 
+        /// <summary>
+        /// Returns a new <see cref="Sprite"/> from raw 4 bpp (16 color) tile data.
+        /// </summary>
         public static unsafe Sprite From4Bpp(byte[] buffer)
         {
             Tile[] tiles = new Tile[buffer.Length / 32];
@@ -160,6 +188,9 @@ namespace GBAHL.Drawing
             return new Sprite(tiles, BitDepth.Four);
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Sprite"/> from raw 8 bpp (256 color) tile data.
+        /// </summary>
         public static unsafe Sprite From8Bpp(byte[] buffer)
         {
             Tile[] tiles = new Tile[buffer.Length / 64];
@@ -185,6 +216,10 @@ namespace GBAHL.Drawing
             return new Sprite(tiles, BitDepth.Eight);
         }
 
+        /// <summary>
+        /// Converts this <see cref="Sprite"/> into raw 4 bpp (16 color) tile data.
+        /// </summary>
+        /// <returns></returns>
         public unsafe byte[] To4Bpp()
         {
             byte[] buffer = new byte[tiles.Length * 32];
@@ -205,6 +240,10 @@ namespace GBAHL.Drawing
             return buffer;
         }
 
+        /// <summary>
+        /// Converts this <see cref="Sprite"/> into raw 8 bpp (256 color) tile data.
+        /// </summary>
+        /// <returns></returns>
         public unsafe byte[] To8Bpp()
         {
             byte[] buffer = new byte[tiles.Length * 64];
@@ -225,14 +264,31 @@ namespace GBAHL.Drawing
             return buffer;
         }
 
+        /// <summary>
+        /// Converts this <see cref="Sprite"/> into an <see cref="Image"/> using the given <see cref="Palette"/>.
+        /// </summary>
+        /// <param name="size">The size in tiles.</param>
+        /// <param name="palette">The <see cref="Palette"/>.</param>
+        /// <param name="showColor0">If <c>false</c>, the first color in the palette is made transparent.</param>
+        /// <returns></returns>
         public Image ToImage(Size size, Palette palette, bool showColor0 = true)
         {
             return ToImage(size.Width, size.Height, palette, showColor0);
         }
 
+        /// <summary>
+        /// Converts this <see cref="Sprite"/> into an <see cref="Image"/> using the given <see cref="Palette"/>.
+        /// </summary>
+        /// <param name="width">The width in tiles.</param>
+        /// <param name="height">The height in tiles.</param>
+        /// <param name="palette">The <see cref="Palette"/>.</param>
+        /// <param name="showColor0">If <c>false</c>, the first color in the palette is made transparent.</param>
+        /// <returns></returns>
         public Image ToImage(int width, int height, Palette palette, bool showColor0 = true)
         {
-            Bitmap bmp = new Bitmap(width * 8, height * 8);
+            Bitmap bmp = new Bitmap(width * Tile.Width, height * Tile.Height);
+
+            // Draw tile data
             for (int tY = 0; tY < height; tY++)
             {
                 for (int tX = 0; tX < width; tX++)
@@ -241,33 +297,42 @@ namespace GBAHL.Drawing
                     if (tile == null)
                         continue;
 
-                    for (int y = 0; y < 8; y++)
+                    for (int y = 0; y < Tile.Width; y++)
                     {
-                        for (int x = 0; x < 8; x++)
+                        for (int x = 0; x < Tile.Height; x++)
                         {
-                            bmp.SetPixel(x + tX * 8, y + tY * 8, palette[tile.GetPixel(x, y)]);
+                            bmp.SetPixel(x + tX * Tile.Width, y + tY * Tile.Height, palette[tile.GetPixel(x, y)]);
                         }
                     }
                 }
             }
 
-            if (!showColor0)
+            // Apply color 0 transparency
+            if (!showColor0) {
                 bmp.MakeTransparent(palette[0]);
+            }
 
             return bmp;
         }
 
+        /// <summary>
+        /// Saves this <see cref="Sprite"/> as a bitmap.
+        /// </summary>
+        /// <param name="filename">A string that contains the name of the file to which to save this <see cref="Sprite"/>.</param>
+        /// <param name="size">Size in tiles.</param>
+        /// <param name="palette">A <see cref="Palette"/> to provide colors for the <see cref="Sprite"/>.</param>
         public void Save(string filename, Size size, Palette palette)
         {
             Save(filename, size.Width, size.Height, palette);
         }
 
         /// <summary>
-        /// Save this <see cref="Sprite"/> as a bitmap.
+        /// Saves this <see cref="Sprite"/> as a bitmap.
         /// </summary>
         /// <param name="filename">A string that contains the name of the file to which to save this <see cref="Sprite"/>.</param>
         /// <param name="w">Width in tiles.</param>
         /// <param name="h">Height in tiles.</param>
+        /// <param name="palette">A <see cref="Palette"/> to provide colors for the <see cref="Sprite"/>.</param>
         public void Save(string filename, int w, int h, Palette palette)
         {
             int width = w * 8;  // width in pixels
@@ -415,6 +480,10 @@ namespace GBAHL.Drawing
             }
         }
 
+        /// <summary>
+        /// Saves this <see cref="Sprite"/> as raw data.
+        /// </summary>
+        /// <param name="filename">A string that contains the name of the file to which to save this <see cref="Sprite"/>.</param>
         public void SaveRaw(string filename)
         {
             // NOTE: copy of To8Bpp method, without palette check
@@ -465,6 +534,9 @@ namespace GBAHL.Drawing
             Array.Resize(ref tiles, i);
         }
 
+        /// <summary>
+        /// Returns an array of sizes for which this <see cref="Sprite"/> can be displayed cleanly.
+        /// </summary>
         public Size[] ValidDimensions
         {
             get
