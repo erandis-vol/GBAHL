@@ -20,7 +20,6 @@ namespace GBAHL.IO
         private byte[] buffer = new byte[BUFFER_SIZE];
 
         private Stream stream;
-
         private bool disposed;
 
         /// <summary>
@@ -67,8 +66,8 @@ namespace GBAHL.IO
         /// <exception cref="ArgumentException">stream is longer than 0x1FFFFFF bytes.</exception>
         public ROM(Stream stream)
         {
-            if (stream.Length != 0x1000000 && stream.Length != 0x2000000)
-                throw new ArgumentException("stream", "Stream is too large for a ROM!");
+            if (stream.Length % 0x1000000 != 0)
+                throw new ArgumentException("stream", "Stream is not the correct size for a ROM!");
 
             //if (!stream.CanRead || !stream.CanWrite)
             //    throw new ArgumentException("stream", "Stream is not read-write!");
