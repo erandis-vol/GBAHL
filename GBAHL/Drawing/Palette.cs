@@ -21,10 +21,20 @@ namespace GBAHL.Drawing
         /// <exception cref="ArgumentOutOfRangeException">if the size is no 16 or 256 colors.</exception>
         public Palette(int size)
         {
-            if (size != 16 && size != 256)
+            if (size != 16 && size != 256) {
                 throw new ArgumentOutOfRangeException("size");
+            }
 
             colors = new Color[size];
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="Palette"/> for the given <see cref="BitDepth"/>.
+        /// </summary>
+        /// <param name="bitDepth">The bit depth.</param>
+        public Palette(BitDepth bitDepth)
+        {
+            colors = new Color[(int)bitDepth];
         }
 
         /// <summary>
@@ -34,8 +44,9 @@ namespace GBAHL.Drawing
         /// <exception cref="ArgumentException">if there are not 16 or 256 colors in the array.</exception>
         public Palette(Color[] colors)
         {
-            if (colors.Length != 16 && colors.Length != 256)
+            if (colors.Length != 16 && colors.Length != 256) {
                 throw new ArgumentException();
+            }
 
             this.colors = colors;
         }
@@ -104,15 +115,17 @@ namespace GBAHL.Drawing
         {
             get
             {
-                if (index < 0 || index >= colors.Length)
+                if (index < 0 || index >= colors.Length) {
                     throw new ArgumentOutOfRangeException("index");
+                }
                 
                 return colors[index];
             }
             set
             {
-                if (index < 0 || index >= colors.Length)
+                if (index < 0 || index >= colors.Length) {
                     throw new ArgumentOutOfRangeException("index");
+                }
 
                 colors[index] = value;
             }
@@ -130,8 +143,9 @@ namespace GBAHL.Drawing
                 sw.WriteLine("0100");
                 sw.WriteLine(colors.Length);
 
-                for (int i = 0; i < colors.Length; i++)
+                for (int i = 0; i < colors.Length; i++) {
                     sw.WriteLine("{0} {1} {2}", colors[i].R, colors[i].G, colors[i].B);
+                }
             }
         }
 

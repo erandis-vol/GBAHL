@@ -398,9 +398,9 @@ namespace GBAHL.IO
         public string[] ReadTextTable(int stringLength, int tableSize, Table.Encoding encoding)
         {
             var table = new string[tableSize];
-            for (int i = 0; i < tableSize; i++)
+            for (int i = 0; i < tableSize; i++) {
                 table[i] = ReadText(stringLength, encoding);
-
+            }
             return table;
         }
 
@@ -565,6 +565,14 @@ namespace GBAHL.IO
             return pal;
         }
 
+        public Sprite ReadSprite(int tiles, BitDepth bitDepth)
+        {
+            if (bitDepth == BitDepth.Four)
+                return ReadSprite4(tiles);
+            else
+                return ReadSprite8(tiles);
+        }
+
         public Sprite ReadSprite4(int tiles)
         {
             try
@@ -589,17 +597,24 @@ namespace GBAHL.IO
             }
         }
 
-        public Sprite ReadCompressedSprite4()
+        /// <summary>
+        /// Reads a compressed sprite of the given bit depth.
+        /// </summary>
+        /// <param name="bitDepth"></param>
+        /// <returns>A sprite.</returns>
+        public Sprite ReadCompressedSprite(BitDepth bitDepth)
         {
-            return ReadCompressedSprite4(Palette.Grayscale16);
+            if (bitDepth == BitDepth.Four)
+                return ReadCompressedSprite4();
+            else
+                return ReadCompressedSprite8();
         }
 
         /// <summary>
         /// Reads a compressed 4BPP sprite.
         /// </summary>
-        /// <param name="palette"></param>
-        /// <returns></returns>
-        public Sprite ReadCompressedSprite4(Palette palette)
+        /// <returns>A sprite.</returns>
+        public Sprite ReadCompressedSprite4()
         {
             try
             {
@@ -614,7 +629,6 @@ namespace GBAHL.IO
         /// <summary>
         /// Reads a compressed 8BPP sprite.
         /// </summary>
-        /// <param name="palette"></param>
         /// <returns></returns>
         public Sprite ReadCompressedSprite8()
         {
@@ -816,6 +830,14 @@ namespace GBAHL.IO
 
             // write compressed bytes
             WriteCompressedBytes(buffer);
+        }
+
+        public void WriteSprite(Sprite sprite)
+        {
+            if (sprite.BitDepth == BitDepth.Four)
+                WriteSprite4(sprite);
+            else
+                WriteSprite8(sprite);
         }
 
         public void WriteSprite4(Sprite sprite)
