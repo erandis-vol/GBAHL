@@ -355,15 +355,18 @@ namespace GBAHL.IO
         }
 
         /// <summary>
-        /// Reads and validates a 4-byte ROM pointer from the stream.
+        /// Reads and validates a 4-byte ROM pointer from the stream. If valid, sets the position to that offset.
         /// </summary>
         /// <returns>The offset pointed to if valid; -1 otherwise.</returns>
-        /*public int PeekPointer()
+        public int ReadPointerAndSeek()
         {
-            var ptr = ReadPointer();
-            pos -= 4;
-            return ptr;
-        }*/
+            int ptr = ReadPointer();
+            if (ptr >= 0) {
+                stream.Seek(ptr, SeekOrigin.Begin);
+                return ptr;
+            }
+            return -1;
+        }
 
         /// <summary>
         /// Reads an FF-terminated string using the given <see cref="Encoding"/> and advances the position.
@@ -864,7 +867,7 @@ namespace GBAHL.IO
 
         #region Search
 
-        // these search methds are bad oooooooooo
+        // these search methds are bad
 
         /// <summary>
         /// Finds free space of the given length in the <see cref="ROM"/>.
@@ -875,6 +878,7 @@ namespace GBAHL.IO
         /// <param name="alignment">The alignment of the offset to search for. Default is <c>1</c>, recommended is <c>4</c>.</param>
         /// <exception cref="EndOfStreamException">if the entire ROM was not able to be read.</exception>
         /// <returns>The offset of the freespace if found; -1 otherwise.</returns>
+        /*
         public int FindFreeSpace(int length, byte freespace = 0xFF, int startOffset = 0, int alignment = 1)
         {
             if (alignment <= 0)
@@ -916,6 +920,30 @@ namespace GBAHL.IO
 
             // return match (or not)
             return match;
+        }
+        */
+
+        public int Find(byte search, int count, int startOffset = 0)
+        {
+            if (startOffset < 0 || startOffset > stream.Length - count)
+                return -1;
+
+            if (count <= 0)
+                return startOffset;
+            
+            byte[] buffer = ReadAllBytes();
+            for (int i = startOffset; i < buffer.Length - count; i++) {
+                int j = 0;
+                while (buffer[i + j] == search && j < count) {
+                    j++;
+                }
+
+                if (j == count) {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         public int Find(byte[] search, int startOffset = 0)
