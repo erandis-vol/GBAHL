@@ -16,7 +16,7 @@ namespace GBAHL.Drawing
         /// </summary>
         public const int Height = 8;
 
-        byte[] data = new byte[Width * Height];
+        private byte[] pixels = new byte[Width * Height];
 
         /// <summary>
         /// Initializes a blank <see cref="Tile"/>.
@@ -36,7 +36,7 @@ namespace GBAHL.Drawing
             if (buffer.Length != Width * Height)
                 throw new Exception();
 
-            data = buffer;
+            pixels = buffer;
         }
 
 
@@ -55,7 +55,7 @@ namespace GBAHL.Drawing
             if (y < 0 || y >= Height)
                 throw new ArgumentOutOfRangeException("y");
 
-            return data[x + y * Width];
+            return pixels[x + y * Width];
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace GBAHL.Drawing
             if (y < 0 || y >= Height)
                 throw new ArgumentOutOfRangeException("y");
 
-            data[x + y * Width] = value;
+            pixels[x + y * Width] = value;
         }
 
         /// <summary>
