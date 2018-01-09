@@ -553,7 +553,7 @@ namespace GBAHL.IO
         public void WriteCompressedBytes(byte[] buffer)
         {
             // compress buffer
-            byte[] bytes = Compression.LZ77.Compress(buffer);
+            byte[] bytes = Compression.LZSS.Compress(buffer);
 
             // write buffer to ROM
             stream.Write(bytes, 0, bytes.Length);

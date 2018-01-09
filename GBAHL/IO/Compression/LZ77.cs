@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GBAHL.IO.Compression
 {
-    public static class LZ77
+    public static class LZSS
     {
         public static byte[] Decompress(byte[] buffer)
         {

@@ -10,20 +10,20 @@ namespace GBAHL.IO
     /// <summary>
     /// Reads and writes primitive data types to/from a ROM.
     /// </summary>
-    public class ROM : BinaryStream
+    public class ROM_old : BinaryStream
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ROM"/> class based on the specified file,
+        /// Initializes a new instance of the <see cref="ROM_old"/> class based on the specified file,
         /// with the default access and sharing options.
         /// </summary>
         /// <param name="filePath">The file.</param>
         /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
         /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public ROM(string filePath) : this(filePath, FileAccess.ReadWrite, FileShare.ReadWrite)
+        public ROM_old(string filePath) : this(filePath, FileAccess.ReadWrite, FileShare.ReadWrite)
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ROM"/> class based on the specified file,
+        /// Initializes a new instance of the <see cref="ROM_old"/> class based on the specified file,
         /// with the specified read/write access and the the specified sharing option.
         /// </summary>
         /// <param name="filePath">The file.</param>
@@ -31,7 +31,7 @@ namespace GBAHL.IO
         /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the ROM.</param>
         /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
         /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public ROM(string filePath, FileAccess access, FileShare share) : base(filePath, access, share)
+        public ROM_old(string filePath, FileAccess access, FileShare share) : base(filePath, access, share)
         {
 #if ENFORCE_ROM_SIZE
             // TODO: Factor of two or something
@@ -44,11 +44,11 @@ namespace GBAHL.IO
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ROM"/> class based on the specified <see cref="Stream"/>.
+        /// Initializes a new instance of the <see cref="ROM_old"/> class based on the specified <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <exception cref="ArgumentException">stream is longer than 0x1FFFFFF bytes.</exception>
-        public ROM(Stream stream) : base(stream)
+        public ROM_old(Stream stream) : base(stream)
         {
 #if ENFORCE_ROM_SIZE
             if (Length % 0x1000000 != 0)
@@ -116,7 +116,7 @@ namespace GBAHL.IO
         }
 
         /// <summary>
-        /// Reads a string of the given length using the given <see cref="Encoding"/> and advances the position by that many bytes.
+        /// Reads a string of the given length using the given <see cref="Table.Encoding"/> and advances the position by that many bytes.
         /// </summary>
         /// <param name="length">The length of the string.</param>
         /// <param name="encoding">The encoding of the string.</param>
@@ -126,6 +126,13 @@ namespace GBAHL.IO
             return Table.GetString(ReadBytes(length), encoding);
         }
 
+        /// <summary>
+        /// Reads a table of strings of the given length using the given <see cref="Table.Encoding"/> and advances the position by that many bytes.
+        /// </summary>
+        /// <param name="stringLength">The length of the string.</param>
+        /// <param name="tableSize">The length of the table.</param>
+        /// <param name="encoding">The encoding of the string.</param>
+        /// <returns></returns>
         public string[] ReadTextTable(int stringLength, int tableSize, Table.Encoding encoding)
         {
             var table = new string[tableSize];
@@ -257,6 +264,18 @@ namespace GBAHL.IO
         #endregion
 
         #region Write
+
+        /// <summary>
+        /// Writes a 4-byte ROM pointer to the stream and advances the position by four bytes.
+        /// </summary>
+        /// <param name="offset">The offset to write a pointer to.</param>
+        public void WritePointer(int offset)
+        {
+            if (offset <= 0)
+                WriteUInt32(0u);
+            else
+                WriteUInt32((uint)offset + 0x08000000u);
+        }
 
         public void WriteText(string str, Table.Encoding encoding)
         {
