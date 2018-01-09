@@ -12,6 +12,8 @@ namespace GBAHL.Text
             this.characters = characters ?? throw new ArgumentNullException("characters");
         }
 
+        #region Methods
+
         public string GetCharacter(byte value)
         {
             return characters[Math.Max(0, Math.Min(value, characters.Length - 1))];
@@ -30,9 +32,13 @@ namespace GBAHL.Text
             return -1;
         }
 
+        #endregion
+
         // TODO: Investigate the best way to represent multiple-byte constants.
         //       Maybe as an integer? Note that constants are never more than 4 bytes.
 
         // TODO: Constants
+
+        public string[] Characters => characters;
     }
 }

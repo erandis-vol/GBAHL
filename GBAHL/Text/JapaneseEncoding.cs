@@ -1,38 +1,14 @@
-﻿using System;
-using System.Text;
-
-namespace GBAHL.Text
+﻿namespace GBAHL.Text
 {
-    public class JapaneseEncoding : Encoding
+    /// <summary>
+    /// Represents a Japanese encoding of characters.
+    /// </summary>
+    public class JapaneseEncoding : TableEncoding
     {
-        public override int GetByteCount(char[] chars, int index, int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetCharCount(byte[] bytes, int index, int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetMaxByteCount(int charCount)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetMaxCharCount(int byteCount)
-        {
-            throw new NotImplementedException();
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JapaneseEncoding"/> class.
+        /// </summary>
+        public JapaneseEncoding() : base(Tables.Japanese)
+        { }
     }
 }

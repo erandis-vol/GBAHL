@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if INCLUDE_OLD_ROM
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -473,4 +474,4 @@ namespace GBAHL.IO
         #endregion
     }
 }
-
+#endif
