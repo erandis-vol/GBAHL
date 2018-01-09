@@ -13,13 +13,21 @@ namespace GBAHL.Drawing
     public enum BitDepth
     {
         /// <summary>
-        /// Specifies 4 bits per pixel, allowing up to 16 colors.
+        /// Specifies 1 bit per pixel.
         /// </summary>
-        Four = 16,
+        One = 1 << 1,
         /// <summary>
-        /// Specifies 8 bits per pixel, allowing up to 256 colors.
+        /// Specifies 2 bits per pixel.
         /// </summary>
-        Eight = 256,
+        Two = 1 << 2,
+        /// <summary>
+        /// Specifies 4 bits per pixel.
+        /// </summary>
+        Four = 1 << 4,
+        /// <summary>
+        /// Specifies 8 bits per pixel.
+        /// </summary>
+        Eight = 1 << 8,
     }
 
     public class Sprite
