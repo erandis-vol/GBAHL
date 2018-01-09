@@ -1,24 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GBAHL.Text
 {
-    /// <summary>
-    /// Represents the English and Japanese GBA Pokémon character encodings.
-    /// </summary>
-    public static class Table
+    internal static class Tables
     {
-        // see: http://bulbapedia.bulbagarden.net/wiki/Character_encoding_in_Generation_III
+        // see for more information:
+        // http://bulbapedia.bulbagarden.net/wiki/Character_encoding_in_Generation_III
 
-        // Japanese and non-Japanese games have different encodings
-        public enum Encoding
+        private static readonly string[] internationalCharacters = new string[256]
         {
-            English,
-            Japanese
-        }
-
-        public static readonly string[] EnglishTable = {
             " ", "À", "Á", "Â", "Ç", "È", "É", "Ê", "Ë", "Ì", "こ", "Î", "Ï", "Ò", "Ó", "Ô",
             "Œ", "Ù", "Ú", "Û", "Ñ", "ß", "à", "á", "ね", "ç", "è", "é", "ê", "ë", "ì", "ま",
             "î", "ï", "ò", "ó", "ô", "œ", "ù", "ú", "û", "ñ", "º", "ª", "\\h2C", "&", "+", "あ",
@@ -37,7 +27,8 @@ namespace GBAHL.Text
             ":", "Ä", "Ö", "Ü", "ä", "ö", "ü", "[^]", "[v]", "[<]", "\\l", "\\p", "\\c", "\\v", "\\n", "\\x",
         };
 
-        public static readonly string[] JapaneseTable = {
+        private static readonly string[] japaneseCharacters = new string[256]
+        {
             " ", "あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す", "せ", "そ",
             "た", "ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ま",
             "み", "む", "め", "も", "や", "ゆ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "を", "ん", "ぁ",
@@ -56,6 +47,18 @@ namespace GBAHL.Text
             ":", "Ä", "Ö", "Ü", "ä", "ö", "ü", "[^]", "[v]", "[<]", "\\l", "\\p", "\\c", "\\v", "\\n", "\\x",
         };
 
+        // Singleton table instances
+        private static Table international = null;
+        private static Table japanese = null;
+
+        // Singleton getters
+        public static Table International =>
+            international ?? (international = new Table(internationalCharacters));
+
+        public static Table Japanese =>
+            japanese ?? (japanese = new Table(japaneseCharacters));
+
+        /*
         public static string GetString(byte[] bytes, Encoding encoding)
         {
             var sb = new StringBuilder();
@@ -218,144 +221,6 @@ namespace GBAHL.Text
             return sb.ToString();
         }
 
-        public static string GetCharacter(byte b, Encoding encoding)
-        {
-            return encoding == Encoding.Japanese ? JapaneseTable[b] : EnglishTable[b];
-        }
-
-        public static bool TryGetBytes(string str, Encoding encoding, out byte[] bytes)
-        {
-            try
-            {
-                bytes = GetBytes(str, encoding);
-                return true;
-            }
-            catch
-            {
-                bytes = null;
-                return false;
-            }
-        }
-
-        public static byte[] GetBytes(string str, Encoding encoding)
-        {
-            if (string.IsNullOrEmpty(str))
-                return new byte[0];
-
-            var buffer = new List<byte>();
-
-            int i = 0;
-            while (i < str.Length)
-            {
-                var c = str[i++];
-
-                if (c == '\\')
-                {
-                    // try to grab an escape sequence
-                    if (i >= str.Length)
-                        throw new Exception("Invalid escape sequence!");
-
-                    c = str[i++];
-                    switch (c)
-                    {
-                        case '\\':
-                            buffer.Add(GetByte("\\", encoding));
-                            break;
-
-                        default:
-                            buffer.Add(GetByte("\\" + c, encoding));
-                            break;
-                    }
-                }
-                else if (c == '[')
-                {
-                    int start = i;
-
-                    // skip contents of constant
-                    while (i < str.Length && str[i] != ']')
-                        i++;
-
-                    // if we went beyond the length of the string, malformed
-                    if (i >= str.Length)
-                        throw new Exception("Malformed constant name!");
-                    else
-                        i++;
-
-                    // try to get the constant
-                    byte[] seq = GetConstant(str.Substring(start, i - start - 1));
-                    if (seq != null)
-                    {
-                        // valid constant
-                        buffer.AddRange(seq);
-                    }
-                    else
-                    {
-                        // search the table for a constant
-                        byte b;
-                        if (!TryGetByte(str.Substring(start - 1, i - start + 1), encoding, out b))
-                            throw new Exception($"Invalid constant [{str.Substring(start, i - start - 1)}]!");
-
-                        // it was found -- yay
-                        buffer.Add(b);
-                    }
-                }
-                else
-                {
-                    // regular character
-                    byte b;
-                    if (!TryGetByte(c, encoding, out b))
-                        throw new Exception($"Invalid character {c}!");
-
-                    buffer.Add(b);
-                }
-            }
-
-            // add terminator
-            buffer.Add(0xFF);
-
-            return buffer.ToArray();
-        }
-
-        public static bool TryGetByte(char c, Encoding encoding, out byte value)
-        {
-            return TryGetByte(c.ToString(), encoding, out value);
-        }
-
-        public static bool TryGetByte(string c, Encoding encoding, out byte value)
-        {
-            string[] table = (encoding == Encoding.English ? EnglishTable : JapaneseTable);
-            value = 0;
-
-            for (int i = 0; i <= 0xFF; i++)
-            {
-                if (table[i] == c)
-                {
-                    value = (byte)i;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static byte GetByte(char c, Encoding encoding)
-        {
-            return GetByte(c.ToString(), encoding);
-        }
-
-        public static byte GetByte(string c, Encoding encoding)
-        {
-            byte value;
-            if (TryGetByte(c, encoding, out value))
-            {
-                return value;
-            }
-            else
-            {
-                throw new Exception($"{c} could not be found in the table!");
-            }
-        }
-
         public static byte[] GetConstant(string constant)
         {
             switch (constant)
@@ -397,5 +262,6 @@ namespace GBAHL.Text
                     return null;
             }
         }
+        */
     }
 }
