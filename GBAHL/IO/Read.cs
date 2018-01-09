@@ -6,6 +6,32 @@ namespace GBAHL.IO
 {
     public static class Read
     {
+        /// <summary>
+        /// Returns the entire contents of the stream as an array of bytes.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <returns>An array of <see cref="byte"/> values.</returns>
+        public static byte[] ToArray(this Stream stream)
+        {
+            var position = stream.Position;
+            stream.Position = 0;
+
+            // Read entire stream into the buffer
+            var buffer = new byte[stream.Length];
+            var bytesRead = 0;
+            do
+            {
+                var n = stream.Read(buffer, bytesRead, (int)stream.Length - bytesRead);
+                if (n <= 0)
+                    throw new EndOfStreamException();
+
+                bytesRead += n;
+            } while (bytesRead < stream.Length);
+
+            stream.Position = position;
+            return buffer;
+        }
+
         public static int ReadInt24(this BinaryReader reader)
         {
             return reader.ReadByte()

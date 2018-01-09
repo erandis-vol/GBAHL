@@ -111,7 +111,7 @@ namespace GBAHL.IO
         /// Returns whether the specified file is a valid ROM size.
         /// </summary>
         /// <param name="file">The file to check.</param>
-        /// <returns></returns>
+        /// <returns>true if the file is a valid ROM size; otherwise, false.</returns>
         public static bool IsValidSize(FileInfo file)
         {
             return file.Length % 0x1000000 == 0;
