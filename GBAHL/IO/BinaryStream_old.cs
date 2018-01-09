@@ -11,7 +11,7 @@ namespace GBAHL.IO
     /// <summary>
     /// Reads and writes primitive data types to/from a Stream.
     /// </summary>
-    public class BinaryStream : IDisposable
+    public class BinaryStream_old : IDisposable
     {
         private const int BUFFER_SIZE = 8; // tune as needed, 8 is all we need for 64-bit integers
         private byte[] buffer = new byte[BUFFER_SIZE];
@@ -20,17 +20,17 @@ namespace GBAHL.IO
         private bool disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryStream"/> class based on the specified file,
+        /// Initializes a new instance of the <see cref="BinaryStream_old"/> class based on the specified file,
         /// with the default access and sharing options.
         /// </summary>
         /// <param name="filePath">The file.</param>
         /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
         /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public BinaryStream(string filePath) : this(filePath, FileAccess.ReadWrite, FileShare.ReadWrite)
+        public BinaryStream_old(string filePath) : this(filePath, FileAccess.ReadWrite, FileShare.ReadWrite)
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryStream"/> class based on the specified file,
+        /// Initializes a new instance of the <see cref="BinaryStream_old"/> class based on the specified file,
         /// with the specified read/write access and the the specified sharing option.
         /// </summary>
         /// <param name="filePath">The file.</param>
@@ -38,7 +38,7 @@ namespace GBAHL.IO
         /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the file.</param>
         /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
         /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public BinaryStream(string filePath, FileAccess access, FileShare share)
+        public BinaryStream_old(string filePath, FileAccess access, FileShare share)
         {
             try
             {
@@ -51,11 +51,11 @@ namespace GBAHL.IO
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryStream"/> class based on the specified <see cref="Stream"/>.
+        /// Initializes a new instance of the <see cref="BinaryStream_old"/> class based on the specified <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <exception cref="ArgumentException">stream is longer than 0x1FFFFFF bytes.</exception>
-        public BinaryStream(Stream stream)
+        public BinaryStream_old(Stream stream)
         {
             //if (!stream.CanRead || !stream.CanWrite)
             //    throw new ArgumentException("stream", "Stream is not read-write!");
@@ -63,13 +63,13 @@ namespace GBAHL.IO
             this.stream = stream;
         }
 
-        ~BinaryStream()
+        ~BinaryStream_old()
         {
             Dispose();
         }
 
         /// <summary>
-        /// Releases all resources used by the current instance of the <see cref="BinaryStream"/> class.
+        /// Releases all resources used by the current instance of the <see cref="BinaryStream_old"/> class.
         /// </summary>
         public void Dispose()
         {

@@ -153,7 +153,7 @@ namespace GBAHL.IO.Compression
                         ActualPosition += length;
 
                         // Add a 1 to the bit Mask
-                        Watch = BitConverter.GetBytes(((int)Watch << 1) + 1)[0];
+                        Watch = BitConverter.GetBytes((Watch << 1) + 1)[0];
                     }
 
                     // We've just compressed 1 more 8

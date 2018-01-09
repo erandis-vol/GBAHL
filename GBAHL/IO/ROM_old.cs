@@ -10,7 +10,7 @@ namespace GBAHL.IO
     /// <summary>
     /// Reads and writes primitive data types to/from a ROM.
     /// </summary>
-    public class ROM_old : BinaryStream
+    public class ROM_old : BinaryStream_old
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ROM_old"/> class based on the specified file,
