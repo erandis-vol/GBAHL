@@ -261,9 +261,7 @@ namespace GBAHL.Drawing
                         sw.WriteLine(colors.Length);
 
                         for (int i = 0; i < colors.Length; i++)
-                        {
                             sw.WriteLine("{0} {1} {2}", colors[i].R, colors[i].G, colors[i].B);
-                        }
                     }
                     break;
 
