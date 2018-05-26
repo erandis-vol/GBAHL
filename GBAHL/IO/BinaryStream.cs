@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Text;
-using GBAHL.Text;
-using GBAHL.Drawing;
 
 namespace GBAHL.IO
 {
     /// <summary>
-    /// Reads and writes primitive data types to/from a Stream.
+    /// Reads and writes primitive data types to/from a <see cref="Stream"/>.
     /// </summary>
-    public class BinaryStream_old : IDisposable
+    public class BinaryStream : IDisposable
     {
         private const int BUFFER_SIZE = 8; // tune as needed, 8 is all we need for 64-bit integers
         private byte[] buffer = new byte[BUFFER_SIZE];
@@ -20,56 +16,25 @@ namespace GBAHL.IO
         private bool disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryStream_old"/> class based on the specified file,
-        /// with the default access and sharing options.
-        /// </summary>
-        /// <param name="filePath">The file.</param>
-        /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
-        /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public BinaryStream_old(string filePath) : this(filePath, FileAccess.ReadWrite, FileShare.ReadWrite)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryStream_old"/> class based on the specified file,
-        /// with the specified read/write access and the the specified sharing option.
-        /// </summary>
-        /// <param name="filePath">The file.</param>
-        /// <param name="access">A <see cref="FileAccess"/> value that specifies the actions that can be performed on the file.</param>
-        /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the file.</param>
-        /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
-        /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public BinaryStream_old(string filePath, FileAccess access, FileShare share)
-        {
-            try
-            {
-                stream = File.Open(filePath, FileMode.Open, access, share);
-            }
-            catch //(Exception e)
-            {
-                throw new FileNotFoundException($"Unable to open {filePath}!");
-            }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryStream_old"/> class based on the specified <see cref="Stream"/>.
+        /// Initializes a new instance of the <see cref="BinaryStream"/> class based on the specified <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        /// <exception cref="ArgumentException">stream is longer than 0x1FFFFFF bytes.</exception>
-        public BinaryStream_old(Stream stream)
+        /// <exception cref="ArgumentException"><paramref name="stream"/> cannot be read from or written to.</exception>
+        public BinaryStream(Stream stream)
         {
-            //if (!stream.CanRead || !stream.CanWrite)
-            //    throw new ArgumentException("stream", "Stream is not read-write!");
+            if (!stream.CanRead || !stream.CanWrite)
+                throw new ArgumentException("stream", "Stream is not read-write!");
 
             this.stream = stream;
         }
 
-        ~BinaryStream_old()
+        ~BinaryStream()
         {
             Dispose();
         }
 
         /// <summary>
-        /// Releases all resources used by the current instance of the <see cref="BinaryStream_old"/> class.
+        /// Releases all resources used by the current instance of the <see cref="BinaryStream"/> class.
         /// </summary>
         public void Dispose()
         {
@@ -334,7 +299,10 @@ namespace GBAHL.IO
             var buffer = new byte[length];
 
             // decompress the data
-            int size = 0, pos = 0, flags = 0;
+            int size = 0, 
+                pos = 0, 
+                flags = 0;
+
             while (size < length)
             {
                 if (pos == 0) flags = ReadByte();

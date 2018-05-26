@@ -1,5 +1,4 @@
-﻿#if INCLUDE_OLD_ROM
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -9,52 +8,21 @@ using GBAHL.Drawing;
 namespace GBAHL.IO
 {
     /// <summary>
-    /// Reads and writes primitive data types to/from a ROM.
+    /// Reads and writes primitive data types to/from a GBA ROM.
     /// </summary>
-    public class ROM_old : BinaryStream_old
+    public class GbaBinaryStream : BinaryStream
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ROM_old"/> class based on the specified file,
-        /// with the default access and sharing options.
-        /// </summary>
-        /// <param name="filePath">The file.</param>
-        /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
-        /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public ROM_old(string filePath) : this(filePath, FileAccess.ReadWrite, FileShare.ReadWrite)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ROM_old"/> class based on the specified file,
-        /// with the specified read/write access and the the specified sharing option.
-        /// </summary>
-        /// <param name="filePath">The file.</param>
-        /// <param name="access">A <see cref="FileAccess"/> value that specifies the actions that can be performed on the ROM.</param>
-        /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the ROM.</param>
-        /// <exception cref="FileNotFoundException">unable to open specified file.</exception>
-        /// <exception cref="ArgumentException">file is larger than 0x1FFFFFF bytes.</exception>
-        public ROM_old(string filePath, FileAccess access, FileShare share) : base(filePath, access, share)
-        {
-#if ENFORCE_ROM_SIZE
-            // TODO: Factor of two or something
-            if (Length % 0x1000000 != 0)
-            {
-                Dispose();
-                throw new Exception("File is not the correct size for a ROM!");
-            }
-#endif
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ROM_old"/> class based on the specified <see cref="Stream"/>.
+        /// Initializes a new instance of the <see cref="GbaBinaryStream"/> class based on the specified <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        /// <exception cref="ArgumentException">stream is longer than 0x1FFFFFF bytes.</exception>
-        public ROM_old(Stream stream) : base(stream)
+        /// <exception cref="ArgumentException"><paramref name="stream"/> is not a valid ROM size.</exception>
+        public GbaBinaryStream(Stream stream) : base(stream)
         {
 #if ENFORCE_ROM_SIZE
             if (Length % 0x1000000 != 0)
             {
-                throw new Exception("Stream is not the correct size for a ROM!");
+                throw new ArgumentException("Stream is not the correct size for a ROM!");
             }
 #endif
         }
@@ -474,4 +442,3 @@ namespace GBAHL.IO
         #endregion
     }
 }
-#endif
