@@ -2,28 +2,31 @@
 
 namespace GBAHL.Text
 {
-    internal class Table
+    /// <summary>
+    /// Represents a table of characters.
+    /// </summary>
+    public class Table
     {
-        private string[] characters;
-
         public Table(string[] characters)
         {
-            // NOTE: assumes 256 characters are provided
-            this.characters = characters ?? throw new ArgumentNullException("characters");
+            if (characters == null)
+                throw new ArgumentNullException(nameof(characters));
+
+            if (characters.Length != 256)
+                throw new ArgumentException("Table must contain 256 characters.", nameof(characters));
+
+            Characters = characters ?? throw new ArgumentNullException("characters");
         }
 
         #region Methods
 
-        public string GetCharacter(byte value)
-        {
-            return characters[Math.Max(0, Math.Min(value, characters.Length - 1))];
-        }
+        public string GetCharacter(byte value) => Characters[value] ?? string.Empty;
 
         public int GetByte(string character)
         {
-            for (int i = 0; i < characters.Length; i++)
+            for (int i = 0; i < Characters.Length; i++)
             {
-                if (characters[i] == character)
+                if (Characters[i] == character)
                 {
                     return i;
                 }
@@ -37,8 +40,6 @@ namespace GBAHL.Text
         // TODO: Investigate the best way to represent multiple-byte constants.
         //       Maybe as an integer? Note that constants are never more than 4 bytes.
 
-        // TODO: Constants
-
-        public string[] Characters => characters;
+        public string[] Characters { get; }
     }
 }

@@ -1,106 +1,66 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace GBAHL.Text
 {
     /// <summary>
-    /// Represents a table-based encoding of characters.
+    /// Represents a table-based character encoding.
     /// </summary>
     public abstract class TableEncoding : Encoding
     {
-        private Table table;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableEncoding"/> class
-        /// for the specified table.
+        /// Initializes a new instance of the <see cref="TableEncoding"/> class for the specified table.
         /// </summary>
-        /// <param name="table">The table to encode.</param>
-        internal TableEncoding(Table table)
+        /// <param name="table">The encoding table.</param>
+        protected TableEncoding(Table table)
         {
-            this.table = table;
+            Table = table;
         }
 
-        #region Methods
-
-        public override int GetByteCount(char[] chars, int index, int count)
+        protected override string Decode(ByteReader bytes)
         {
-            if (chars == null)
-                throw new ArgumentNullException("chars");
+            var sb = new StringBuilder();
 
-            if (index < 0 || count < 0)
-                throw new ArgumentOutOfRangeException(index < 0 ? "index" : "count");
-
-            if (chars.Length - index < count)
-                throw new ArgumentOutOfRangeException("chars");
-
-            // Handle an empty array
-            if (chars.Length == 0)
-                return 0;
-
-            // Iterate each character, counting the bytes
-            var byteCount = 0;
-            foreach (var c in Common.Split(chars, index, count))
+            while (bytes.HasMore)
             {
-                var value = table.GetByte(c);
-                if (value == -1)
-                {
-                    throw new InvalidDataException($"Could not resolve character '{c}'");
-                }
-
-                byteCount++;
+                sb.Append(DecodeChar(bytes.ReadByte()));
             }
 
-            return byteCount;
+            return sb.ToString();
         }
 
-        public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
+        public override string DecodeChar(byte b)
         {
-            throw new NotImplementedException();
+            return Table.GetCharacter(b);
         }
 
-        public override int GetCharCount(byte[] bytes, int index, int count)
+        public override byte[] Encode(string str)
         {
-            if (bytes == null)
-                throw new ArgumentNullException("bytes");
+            var bytes = new List<byte>();
 
-            if (index < 0 || count < 0)
-                throw new ArgumentOutOfRangeException(index < 0 ? "index" : "count");
+            foreach (var ch in Split(str))
+            {
+                bytes.Add(EncodeChar(ch));
+            }
 
-            if (bytes.Length - index < count)
-                throw new ArgumentOutOfRangeException("bytes");
-
-            throw new NotImplementedException();
+            return bytes.ToArray();
         }
 
-        public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
+        public override byte EncodeChar(string ch)
         {
-            throw new NotImplementedException();
+            var value = Table.GetByte(ch);
+
+            if (value == -1)
+                throw new InvalidDataException($"Could not encode '{ch}'.");
+
+            return (byte)value;
         }
-
-        public override int GetMaxByteCount(int charCount)
-        {
-            // TODO: from table, get longest constant and use it here
-            //       for now, we assume that constants are no greater than 4 bytes
-            return charCount * 4;
-        }
-
-        public override int GetMaxCharCount(int byteCount)
-        {
-            // the longest possible string length for a series of bytes
-            return table.Characters.Max(x => x.Length) * byteCount;
-        }
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
-        /// Gets the table use by this encoding.
+        /// Gets the encoding table.
         /// </summary>
-        internal Table Table => table;
-
-        #endregion
+        public Table Table { get; }
     }
 }

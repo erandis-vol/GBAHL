@@ -70,7 +70,7 @@ namespace GBAHL.IO
         /// </summary>
         /// <param name="encoding">The encoding of the string.</param>
         /// <returns></returns>
-        public string ReadText(Table.Encoding encoding)
+        public string ReadText(Encoding encoding)
         {
             // read string until FF
             List<byte> buffer = new List<byte>();
@@ -81,7 +81,7 @@ namespace GBAHL.IO
             } while (temp != 0xFF);
 
             // convert to string
-            return Table.GetString(buffer.ToArray(), encoding);
+            return encoding.Decode(buffer.ToArray());
         }
 
         /// <summary>
@@ -90,9 +90,9 @@ namespace GBAHL.IO
         /// <param name="length">The length of the string.</param>
         /// <param name="encoding">The encoding of the string.</param>
         /// <returns></returns>
-        public string ReadText(int length, Table.Encoding encoding)
+        public string ReadText(int length, Encoding encoding)
         {
-            return Table.GetString(ReadBytes(length), encoding);
+            return encoding.Decode(ReadBytes(length));
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace GBAHL.IO
         /// <param name="tableSize">The length of the table.</param>
         /// <param name="encoding">The encoding of the string.</param>
         /// <returns></returns>
-        public string[] ReadTextTable(int stringLength, int tableSize, Table.Encoding encoding)
+        public string[] ReadTextTable(int stringLength, int tableSize, Encoding encoding)
         {
             var table = new string[tableSize];
             for (int i = 0; i < tableSize; i++)
@@ -130,7 +130,7 @@ namespace GBAHL.IO
         /// <exception cref="ArgumentOutOfRangeException">colors was not 16 or 256.</exception>
         public Palette ReadPalette(int colors = 16)
         {
-            var pal = new Palette(colors);
+            var pal = new Palette(Color.Black, colors);
             for (int i = 0; i < colors; i++)
                 pal[i] = ReadColor();
             return pal;
@@ -144,7 +144,7 @@ namespace GBAHL.IO
         public Palette ReadCompressedPalette()
         {
             var buffer = ReadCompressedBytes();
-            var pal = new Palette(buffer.Length / 2);
+            var pal = new Palette(Color.Black, buffer.Length / 2);
             for (int i = 0; i < pal.Length; i++)
             {
                 var color = (buffer[i * 2 + 1] << 8) | buffer[i * 2];
@@ -246,15 +246,15 @@ namespace GBAHL.IO
                 WriteUInt32((uint)offset + 0x08000000u);
         }
 
-        public void WriteText(string str, Table.Encoding encoding)
+        public void WriteText(string str, Encoding encoding)
         {
-            WriteBytes(Table.GetBytes(str, encoding));
+            WriteBytes(encoding.Encode(str));
         }
 
-        public void WriteText(string str, int length, Table.Encoding encoding)
+        public void WriteText(string str, int length, Encoding encoding)
         {
             // convert string
-            byte[] buffer = Table.GetBytes(str, encoding);
+            byte[] buffer = encoding.Encode(str);
 
             // ensure proper length
             if (buffer.Length != length)
@@ -264,7 +264,7 @@ namespace GBAHL.IO
             WriteBytes(buffer);
         }
 
-        public void WriteTextTable(string[] table, int entryLength, Table.Encoding encoding)
+        public void WriteTextTable(string[] table, int entryLength, Encoding encoding)
         {
             foreach (var str in table)
                 WriteText(str, entryLength, encoding);

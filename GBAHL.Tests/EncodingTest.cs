@@ -1,16 +1,16 @@
 ﻿using GBAHL;
 using GBAHL.Text;
+using GBAHL.Text.Pokemon;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using System.Text;
 
 namespace GBAHL.Tests
 {
     [TestClass]
     public class EncodingTest
     {
-        private static Encoding encoding = new JapaneseEncoding();
+        private static Encoding encoding = FireRedEncoding.International;
 
         private const string VALID_STRING_1 = @"あ... かわいいですね.";
         private const string VALID_STRING_2 = @"HELLO.\nI AM NICE.";
@@ -18,6 +18,13 @@ namespace GBAHL.Tests
         private const string INVALID_STRING_1 = @"oops [invalid";
         private const string INVALID_STRING_2 = @"oops\";
 
+        [TestMethod]
+        public void TestSplit()
+        {
+            
+        }
+
+        /*
         [TestMethod]
         public void TestGetByteCount()
         {
@@ -41,5 +48,6 @@ namespace GBAHL.Tests
         {
             encoding.GetByteCount(INVALID_STRING_2);
         }
+        */
     }
 }
