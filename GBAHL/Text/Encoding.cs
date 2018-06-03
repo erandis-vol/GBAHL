@@ -138,23 +138,6 @@ namespace GBAHL.Text
             }
 
             /// <summary>
-            /// Reads the next byte from the stream but does not advance the position.
-            /// </summary>
-            /// <param name="value">The next byte to be read from the stream.</param>
-            /// <returns><c>true</c> if the next byte could be read; otherwise, <c>false</c>.</returns>
-            public bool TryPeekByte(out byte value)
-            {
-                if (Position < bytes.Length)
-                {
-                    value = bytes[Position];
-                    return true;
-                }
-
-                value = 0;
-                return false;
-            }
-
-            /// <summary>
             /// Gets or sets the position of the stream.
             /// </summary>
             public int Position { get; set; } = 0;

@@ -19,9 +19,12 @@ namespace GBAHL.TestConsole
                     if (string.IsNullOrEmpty(line))
                         break;
 
-                    var bytes = FireRedEncoding.International.Encode(line);
+                    var encoded = FireRedEncoding.International.Encode(line);
+                    Console.WriteLine("[" + string.Join(", ", encoded.Select(x => x.ToString("X2"))) + "]");
 
-                    Console.WriteLine("[" + string.Join(", ", bytes.Select(x => x.ToString("X2"))) + "]");
+                    var decoded = FireRedEncoding.International.Decode(encoded);
+                    Console.WriteLine(decoded);
+
                     Console.WriteLine();
                 }
                 catch (Exception ex)

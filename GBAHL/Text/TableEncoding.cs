@@ -38,11 +38,11 @@ namespace GBAHL.Text
 
         public override byte[] Encode(string str)
         {
-            var bytes = new List<byte>();
+            var bytes = new ByteWriter();
 
             foreach (var ch in Split(str))
             {
-                bytes.Add(EncodeChar(ch));
+                bytes.Write(EncodeChar(ch));
             }
 
             return bytes.ToArray();

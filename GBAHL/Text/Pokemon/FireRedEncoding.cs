@@ -110,9 +110,9 @@ namespace GBAHL.Text.Pokemon
 
         protected override string DecodeVariable(ByteReader bytes)
         {
-            if (bytes.TryPeekByte(out var variable))
-            {
-                switch (variable)
+            try
+            { 
+                switch (bytes.ReadByte())
                 {
                     case 0x01:
                         return "[player]";
@@ -126,6 +126,8 @@ namespace GBAHL.Text.Pokemon
                         return "[rival]";
                 }
             }
+            catch
+            { }
 
             throw new InvalidDataException();
         }
