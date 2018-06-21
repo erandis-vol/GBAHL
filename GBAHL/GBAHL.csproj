@@ -48,6 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Asm\AssemblyReader.cs" />
+    <Compile Include="Asm\AssemblyLine.cs" />
+    <Compile Include="Asm\AssemblyLineType.cs" />
     <Compile Include="Drawing\Palette.cs" />
     <Compile Include="Drawing\Sprite.cs" />
     <Compile Include="Drawing\Tile.cs" />
