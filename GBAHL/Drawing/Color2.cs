@@ -5,7 +5,7 @@ namespace GBAHL.Drawing
     /// <summary>
     /// Represents a 15-bit BGR555 color.
     /// </summary>
-    public struct Color2
+    public struct Color2 : IEquatable<Color2>
     {
         private const byte MaxComponentValue = (1 << 5) - 1;
 
@@ -68,6 +68,68 @@ namespace GBAHL.Drawing
         public ushort ToBgr()
         {
             return (ushort)(R | (G << 5) | (B << 10));
+        }
+
+        /// <summary>
+        /// Tests whether two specified <see cref="Color2"/> values are equivalent.
+        /// </summary>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns></returns>
+        public static bool operator ==(Color2 c1, Color2 c2)
+        {
+            return c1.Equals(c2);
+        }
+
+        /// <summary>
+        /// Tests whether two specified <see cref="Color2"/> values are not equivalent.
+        /// </summary>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns></returns>
+        public static bool operator !=(Color2 c1, Color2 c2)
+        {
+            return !(c1 == c2);
+        }
+
+        /// <summary>
+        /// Determines whether this <see cref="Color2"/> is equivalent to the specified <see cref="Color2"/> value.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Equals(Color2 other)
+        {
+            return R == other.R
+                && G == other.G
+                && B == other.B;
+        }
+
+        /// <summary>
+        /// Determines whether this <see cref="Color2"/> is equivalent to the specified object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            return (obj is Color2) && Equals((Color2)obj);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this <see cref="Color2"/> value.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return unchecked(R.GetHashCode() ^ G.GetHashCode() ^ B.GetHashCode());
+        }
+
+        /// <summary>
+        /// Returns a string representation of this <see cref="Color2"/> value.
+        /// </summary>
+        /// <returns>A string representation of this <see cref="Color2"/> value.</returns>
+        public override string ToString()
+        {
+            return $"{{R={R}, G={G}, B={B}}}";
         }
 
         /// <summary>
