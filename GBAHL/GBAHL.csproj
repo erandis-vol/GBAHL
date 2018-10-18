@@ -33,6 +33,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -56,8 +59,9 @@
     <Compile Include="IO\Compression\LZSS.cs" />
     <Compile Include="IO\GbaBinaryStream.cs" />
     <Compile Include="IO\BinaryStream.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Configuration\IConfiguration.cs" />
+    <Compile Include="Configuration\JsonConfiguration.cs" />
     <Compile Include="Text\Encoding.cs" />
     <Compile Include="Text\Pokemon\EmeraldEncoding.cs" />
     <Compile Include="Text\Pokemon\FireRedEncoding.cs" />
@@ -68,6 +72,10 @@
     <Compile Include="Windows\Forms\NumberBox.cs">
       <SubType>Component</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

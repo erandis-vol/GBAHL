@@ -1,14 +1,71 @@
 ﻿using GBAHL.Asm;
-using GBAHL.Text;
-using GBAHL.Text.Pokemon;
+using GBAHL.Configuration;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace GBAHL.TestConsole
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
+        {
+            TestJsonConfigurationSave();
+            TestJsonConfigurationLoad();
+
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey(true);
+        }
+
+        public class TestConfigurationData
+        {
+            public Dictionary<string, int> Offsets { get; set; }
+
+            public int Version { get; set; }
+        }
+
+        static void TestJsonConfigurationSave()
+        {
+            var data = new TestConfigurationData {
+                Offsets = new Dictionary<string, int> {
+                    ["TEST_1"] = 0x123456,
+                    ["TEST_2"] = 0xABCDEF,
+                },
+                Version = 1,
+            };
+
+            using (var sw = new StringWriter())
+            {
+                JsonConfiguration.Default.Save(sw, data);
+                Console.WriteLine(sw.ToString());
+            }
+        }
+
+        static void TestJsonConfigurationLoad()
+        {
+            var json = @"
+            {
+                ""Offsets"": {
+                    ""TEST_1"": 0x123456,
+                    ""TEST_2"": 0xABCDEF
+                },
+                ""Version"": 1
+            }
+            ";
+
+            Console.WriteLine(json);
+
+            var data = JsonConfiguration.Default.Load<TestConfigurationData>(json);
+
+            using (var sw = new StringWriter())
+            {
+                JsonConfiguration.Default.Save(sw, data);
+                Console.WriteLine(sw.ToString());
+            }
+        }
+
+        static void TestSplitParameters()
         {
             while (true)
             {
@@ -20,14 +77,6 @@ namespace GBAHL.TestConsole
                     if (string.IsNullOrEmpty(line))
                         break;
 
-                    //var encoded = FireRedEncoding.International.Encode(line);
-                    //Console.WriteLine("[" + string.Join(", ", encoded.Select(x => x.ToString("X2"))) + "]");
-                    //
-                    //var decoded = FireRedEncoding.International.Decode(encoded);
-                    //Console.WriteLine(decoded);
-                    //
-                    //Console.WriteLine();
-
                     Console.WriteLine(string.Join(" ", AssemblyHelpers.SplitParameters(line).Select(x => "\"" + x.Trim() + "\"")));
                 }
                 catch (Exception ex)
@@ -35,9 +84,6 @@ namespace GBAHL.TestConsole
                     Console.WriteLine(ex);
                 }
             }
-
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey(true);
         }
     }
 }
