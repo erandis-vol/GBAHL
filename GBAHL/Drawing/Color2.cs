@@ -129,7 +129,7 @@ namespace GBAHL.Drawing
         /// <returns>A string representation of this <see cref="Color2"/> value.</returns>
         public override string ToString()
         {
-            return $"{{R={R}, G={G}, B={B}}}";
+            return $"{{{R},{G},{B}}}";
         }
 
         /// <summary>
