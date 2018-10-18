@@ -11,8 +11,7 @@ namespace GBAHL.TestConsole
     {
         static void Main(string[] args)
         {
-            TestJsonConfigurationSave();
-            TestJsonConfigurationLoad();
+            TestAssemblyWriter();
 
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey(true);
@@ -65,24 +64,16 @@ namespace GBAHL.TestConsole
             }
         }
 
-        static void TestSplitParameters()
+        static void TestAssemblyWriter()
         {
-            while (true)
+            using (var aw = new AssemblyWriter())
             {
-                try
-                {
-                    Console.Write("= ");
+                aw.WriteLine("This is a comment.");
+                aw.WriteLine("As is this.");
+                aw.WriteLine(AssemblyLine.Label("TEST", -1));
+                aw.WriteLine(AssemblyLine.Instruction("add", new[] { "r1", "r2", "r2" }, -1));
 
-                    var line = Console.ReadLine();
-                    if (string.IsNullOrEmpty(line))
-                        break;
-
-                    Console.WriteLine(string.Join(" ", AssemblyHelpers.SplitParameters(line).Select(x => "\"" + x.Trim() + "\"")));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                Console.WriteLine(aw);
             }
         }
     }
