@@ -13,9 +13,6 @@ namespace GBAHL.Asm
         /// <summary>The EOF value.</summary>
         private const int EOF = -1;
 
-        /// <summary>The comment character.</summary>
-        private const char Comment = '@';
-
         /// <summary>The label character.</summary>
         private const char Label = ':';
 
@@ -75,15 +72,11 @@ namespace GBAHL.Asm
             line = line.Trim();
 
             // Trim the comment
-            var commentIndex = line.IndexOf(Comment);
-            if (commentIndex >= 0)
-                line = line.Remove(commentIndex).TrimEnd();
+            line = AssemblyHelpers.RemoveComments(line);
 
             // Handle empty lines
             if (line.Length == 0)
-            {
                 return AssemblyLine.Empty(currentLine++);
-            }
 
             // Handle labels
             var labelIndex = line.IndexOf(Label);
@@ -99,22 +92,22 @@ namespace GBAHL.Asm
             var parameterIndex = line.IndexOfAny(WhiteSpace);
             if (parameterIndex >= 0)
             {
-                var val = line.Substring(0, parameterIndex);
-                var par = line.Substring(parameterIndex).Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                var value = line.Substring(0, parameterIndex);
+                var parameters = AssemblyHelpers.SplitParameters(line.Substring(parameterIndex)).ToArray();
 
-                if (val.Length > 0 && val[0] == '.')
+                if (value.Length > 0 && value[0] == '.')
                 {
                     return AssemblyLine.Directive(
-                        val,
-                        par,
+                        value,
+                        parameters,
                         currentLine++
                     );
                 }
                 else
                 {
                     return AssemblyLine.Instruction(
-                        val,
-                        par,
+                        value,
+                        parameters,
                         currentLine++
                     );
                 }

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GBAHL.Asm
 {
@@ -46,9 +43,6 @@ namespace GBAHL.Asm
                             break;
 
                         case '{':
-                            //if (i != 0)
-                            //    throw new Exception("Unexpected '{'.");
-
                             // the brackets should be well-formed, nesting is not allowed
                             var j = str.IndexOf('}');
                             if (j < 0)

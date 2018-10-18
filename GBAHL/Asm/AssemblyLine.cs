@@ -114,8 +114,6 @@ namespace GBAHL.Asm
                 number
             );
 
-#if DEBUG
-
         /// <summary>
         /// Returns a string representation of the line.
         /// </summary>
@@ -131,8 +129,6 @@ namespace GBAHL.Asm
                 return $"{{Type={Type}, Value={Value}, Number={Number}}}";
             }
         }
-
-#endif
 
         /// <summary>
         /// Gets the type.
