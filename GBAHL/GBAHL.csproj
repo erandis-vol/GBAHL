@@ -48,12 +48,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Asm\AssemblyHelpers.cs" />
     <Compile Include="Asm\AssemblyReader.cs" />
     <Compile Include="Asm\AssemblyLine.cs" />
     <Compile Include="Asm\AssemblyLineType.cs" />
     <Compile Include="Drawing\Palette.cs" />
     <Compile Include="Drawing\Sprite.cs" />
     <Compile Include="Drawing\Tile.cs" />
+    <Compile Include="Drawing\Tileset.cs" />
     <Compile Include="IO\Compression\LZSS.cs" />
     <Compile Include="IO\GbaBinaryStream.cs" />
     <Compile Include="IO\BinaryStream.cs" />

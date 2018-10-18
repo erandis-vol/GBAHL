@@ -1,4 +1,5 @@
-﻿using GBAHL.Text;
+﻿using GBAHL.Asm;
+using GBAHL.Text;
 using GBAHL.Text.Pokemon;
 using System;
 using System.Linq;
@@ -19,13 +20,15 @@ namespace GBAHL.TestConsole
                     if (string.IsNullOrEmpty(line))
                         break;
 
-                    var encoded = FireRedEncoding.International.Encode(line);
-                    Console.WriteLine("[" + string.Join(", ", encoded.Select(x => x.ToString("X2"))) + "]");
+                    //var encoded = FireRedEncoding.International.Encode(line);
+                    //Console.WriteLine("[" + string.Join(", ", encoded.Select(x => x.ToString("X2"))) + "]");
+                    //
+                    //var decoded = FireRedEncoding.International.Decode(encoded);
+                    //Console.WriteLine(decoded);
+                    //
+                    //Console.WriteLine();
 
-                    var decoded = FireRedEncoding.International.Decode(encoded);
-                    Console.WriteLine(decoded);
-
-                    Console.WriteLine();
+                    Console.WriteLine(string.Join(" ", AssemblyHelpers.SplitParameters(line).Select(x => "\"" + x.Trim() + "\"")));
                 }
                 catch (Exception ex)
                 {
