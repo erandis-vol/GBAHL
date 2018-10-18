@@ -1,40 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GBAHL.Drawing
 {
+    /// <summary>
+    /// Represents a collection of drawable tiles.
+    /// </summary>
     public class Tileset
     {
-        public struct Tile
+        private Tile[] tiles;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Tileset"/> class with the specified length.
+        /// </summary>
+        /// <param name="length">The length of the tileset.</param>
+        public Tileset(int length)
         {
-            private byte[] pixels;
+            if (length < 0)
+                throw new ArgumentOutOfRangeException(nameof(length));
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Tile"/> struct by copying pixels from the specified array.
-            /// </summary>
-            /// <param name="pixels">The pixels to be copied.</param>
-            /// <exception cref="ArgumentException">
-            /// <paramref name="pixels"/> does not contain <c>64</c> pixels.
-            /// </exception>
-            /// <exception cref="ArgumentNullException"><paramref name="pixels"/> is <c>null</c>.</exception>
-            public Tile(byte[] pixels)
-            {
-                if (pixels == null)
-                    throw new ArgumentNullException(nameof(pixels));
-
-                if (pixels.Length != 64)
-                    throw new ArgumentException("Invalid pixel data.", nameof(pixels));
-
-                this.pixels = (byte[])pixels.Clone();
-            }
-
-            /// <summary>
-            /// The pixel data.
-            /// </summary>
-            public byte[] Pixels => pixels ?? (pixels = new byte[64]);
+            tiles = new Tile[length];
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Tileset"/> class for the specified tile array.
+        /// </summary>
+        /// <param name="tiles">The tile array.</param>
+        public Tileset(Tile[] tiles)
+        {
+            // Should we clone the tile array?
+            this.tiles = tiles ?? throw new ArgumentNullException(nameof(tiles));
+        }
+
+        /// <summary>
+        /// Gets the specified tile.
+        /// </summary>
+        /// <param name="index">The index of the tile.</param>
+        /// <returns></returns>
+        public ref Tile this[int index]
+        {
+            get => ref tiles[index];
+        }
+
+        /// <summary>
+        /// Determines all values that create an image with no extra tiles.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<int> GetPerfectColumns()
+        {
+            for (int i = 1; i <= tiles.Length; i++)
+            {
+                if (tiles.Length % i == 0)
+                    yield return i;
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of tiles.
+        /// </summary>
+        public int Length => tiles.Length;
     }
 }

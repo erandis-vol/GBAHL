@@ -153,19 +153,19 @@ namespace GBAHL.IO
             return pal;
         }
 
-        public Sprite ReadSprite(int tiles, BitDepth bitDepth)
+        public Sprite_old ReadSprite(int tiles, BitDepth_old bitDepth)
         {
-            if (bitDepth == BitDepth.Four)
+            if (bitDepth == BitDepth_old.Four)
                 return ReadSprite4(tiles);
             else
                 return ReadSprite8(tiles);
         }
 
-        public Sprite ReadSprite4(int tiles)
+        public Sprite_old ReadSprite4(int tiles)
         {
             try
             {
-                return Sprite.From4Bpp(ReadBytes(tiles * 32));
+                return Sprite_old.From4Bpp(ReadBytes(tiles * 32));
             }
             catch
             {
@@ -173,11 +173,11 @@ namespace GBAHL.IO
             }
         }
 
-        public Sprite ReadSprite8(int tiles)
+        public Sprite_old ReadSprite8(int tiles)
         {
             try
             {
-                return Sprite.From8Bpp(ReadBytes(tiles * 64));
+                return Sprite_old.From8Bpp(ReadBytes(tiles * 64));
             }
             catch
             {
@@ -190,9 +190,9 @@ namespace GBAHL.IO
         /// </summary>
         /// <param name="bitDepth"></param>
         /// <returns>A sprite.</returns>
-        public Sprite ReadCompressedSprite(BitDepth bitDepth)
+        public Sprite_old ReadCompressedSprite(BitDepth_old bitDepth)
         {
-            if (bitDepth == BitDepth.Four)
+            if (bitDepth == BitDepth_old.Four)
                 return ReadCompressedSprite4();
             else
                 return ReadCompressedSprite8();
@@ -202,11 +202,11 @@ namespace GBAHL.IO
         /// Reads a compressed 4BPP sprite.
         /// </summary>
         /// <returns>A sprite.</returns>
-        public Sprite ReadCompressedSprite4()
+        public Sprite_old ReadCompressedSprite4()
         {
             try
             {
-                return Sprite.From4Bpp(ReadCompressedBytes());
+                return Sprite_old.From4Bpp(ReadCompressedBytes());
             }
             catch
             {
@@ -218,11 +218,11 @@ namespace GBAHL.IO
         /// Reads a compressed 8BPP sprite.
         /// </summary>
         /// <returns></returns>
-        public Sprite ReadCompressedSprite8()
+        public Sprite_old ReadCompressedSprite8()
         {
             try
             {
-                return Sprite.From8Bpp(ReadCompressedBytes());
+                return Sprite_old.From8Bpp(ReadCompressedBytes());
             }
             catch
             {
@@ -300,30 +300,30 @@ namespace GBAHL.IO
             WriteCompressedBytes(buffer);
         }
 
-        public void WriteSprite(Sprite sprite)
+        public void WriteSprite(Sprite_old sprite)
         {
-            if (sprite.BitDepth == BitDepth.Four)
+            if (sprite.BitDepth == BitDepth_old.Four)
                 WriteSprite4(sprite);
             else
                 WriteSprite8(sprite);
         }
 
-        public void WriteSprite4(Sprite sprite)
+        public void WriteSprite4(Sprite_old sprite)
         {
             WriteBytes(sprite.To4Bpp());
         }
 
-        public void WriteSprite8(Sprite sprite)
+        public void WriteSprite8(Sprite_old sprite)
         {
             WriteBytes(sprite.To8Bpp());
         }
 
-        public void WriteCompressedSprite4(Sprite sprite)
+        public void WriteCompressedSprite4(Sprite_old sprite)
         {
             WriteCompressedBytes(sprite.To4Bpp());
         }
 
-        public void WriteCompressedSprite8(Sprite sprite)
+        public void WriteCompressedSprite8(Sprite_old sprite)
         {
             WriteCompressedBytes(sprite.To8Bpp());
         }

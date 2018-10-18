@@ -55,7 +55,7 @@ namespace GBAHL.Drawing
         /// </summary>
         /// <param name="color">The color to repeat.</param>
         /// <param name="bitDepth">The bit depth.</param>
-        public Palette(Color color, BitDepth bitDepth)
+        public Palette(Color color, BitDepth_old bitDepth)
             : this(color, (int)bitDepth)
         { }
 
@@ -103,9 +103,10 @@ namespace GBAHL.Drawing
 
                         if (p != 'P' ||
                             l != 'L' ||
-                            t != 'T' ||
-                            _ != ' ')
+                            t != 'T')
+                        {
                             throw new InvalidDataException("This is not a palette file.");
+                        }
 
                         var length = br.ReadInt32();
 
@@ -245,7 +246,6 @@ namespace GBAHL.Drawing
                         bw.Write((byte)'P');
                         bw.Write((byte)'L');
                         bw.Write((byte)'T');
-                        bw.Write((byte)' ');
 
                         bw.Write(colors.Length);
                         foreach (var color in colors)
@@ -287,16 +287,16 @@ namespace GBAHL.Drawing
         }
 
         /// <summary>
-        /// Returns an iterator that iterates through the <see cref="Palette"/>.
+        /// Returns an enumerator that iterates through the <see cref="Palette"/>.
         /// </summary>
-        /// <returns>A interator.</returns>
+        /// <returns></returns>
         public IEnumerator<Color> GetEnumerator() =>
              ((IEnumerable<Color>)colors).GetEnumerator();
 
         /// <summary>
-        /// Returns an iterator that iterates through the <see cref="Palette"/>.
+        /// Returns an enumerator that iterates through the <see cref="Palette"/>.
         /// </summary>
-        /// <returns>An interator.</returns>
+        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator() =>
             colors.GetEnumerator();
 
