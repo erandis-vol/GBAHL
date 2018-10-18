@@ -46,6 +46,22 @@ namespace GBAHL.Drawing
         }
 
         /// <summary>
+        /// Creates a <see cref="Color2"/> structure for the specified 8-bit color components.
+        /// </summary>
+        /// <param name="r">The red component.</param>
+        /// <param name="g">The green component.</param>
+        /// <param name="b">The blue component.</param>
+        /// <returns></returns>
+        public static Color2 FromArgb(int r, int g, int b)
+        {
+            return new Color2(
+                (byte)(r >> 3),
+                (byte)(g >> 3),
+                (byte)(b >> 3)
+            );
+        }
+
+        /// <summary>
         /// Returns the 15-bit BGR555 value of this <see cref="Color2"/> value.
         /// </summary>
         /// <returns></returns>
