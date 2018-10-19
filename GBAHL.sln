@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GBAHL", "GBAHL\GBAHL.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GBAHL.TestConsole", "GBAHL.TestConsole\GBAHL.TestConsole.csproj", "{3A1E9A6E-9296-4323-9BD1-26462201D59E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GBAHL.Drawing.GDI", "GBAHL.Drawing.GDI\GBAHL.Drawing.GDI.csproj", "{AB53F5FF-0412-44F3-87AF-187A2BFB5012}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GBAHL.Drawing.OpenGL", "GBAHL.Drawing.OpenGL\GBAHL.Drawing.OpenGL.csproj", "{C3FEA2D9-02AB-45FC-83D4-E7A96EA5C6BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{3A1E9A6E-9296-4323-9BD1-26462201D59E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A1E9A6E-9296-4323-9BD1-26462201D59E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A1E9A6E-9296-4323-9BD1-26462201D59E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB53F5FF-0412-44F3-87AF-187A2BFB5012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB53F5FF-0412-44F3-87AF-187A2BFB5012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB53F5FF-0412-44F3-87AF-187A2BFB5012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB53F5FF-0412-44F3-87AF-187A2BFB5012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3FEA2D9-02AB-45FC-83D4-E7A96EA5C6BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3FEA2D9-02AB-45FC-83D4-E7A96EA5C6BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3FEA2D9-02AB-45FC-83D4-E7A96EA5C6BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3FEA2D9-02AB-45FC-83D4-E7A96EA5C6BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
