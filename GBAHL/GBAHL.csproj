@@ -38,8 +38,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,7 +51,11 @@
     <Compile Include="Asm\AssemblyLine.cs" />
     <Compile Include="Asm\AssemblyLineType.cs" />
     <Compile Include="Asm\AssemblyWriter.cs" />
+    <Compile Include="Drawing\BitDepth.cs" />
     <Compile Include="Drawing\Color2.cs" />
+    <Compile Include="Drawing\Color2.KnownColors.cs">
+      <DependentUpon>Color2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Drawing\Palette.cs" />
     <Compile Include="Drawing\Sprite.cs" />
     <Compile Include="Drawing\Tile.cs" />
@@ -71,9 +73,6 @@
     <Compile Include="Text\Pokemon\RubyEncoding.cs" />
     <Compile Include="Text\TableEncoding.cs" />
     <Compile Include="Text\Table.cs" />
-    <Compile Include="Windows\Forms\NumberBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

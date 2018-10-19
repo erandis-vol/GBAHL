@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GBAHL.Drawing
 {
@@ -48,23 +49,16 @@ namespace GBAHL.Drawing
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Palette"/> class
-        /// for the specified bit depth.
+        /// Initializes a new instance of the <see cref="Palette"/> class from the specified <see cref="Color2"/> values.
         /// </summary>
-        /// <param name="color">The color to repeat.</param>
-        /// <param name="bitDepth">The bit depth.</param>
-        public Palette(Color2 color, BitDepth_old bitDepth)
-            : this(color, (int)bitDepth)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Palette"/> class from given array of <see cref="Color"/> values.
-        /// </summary>
-        /// <param name="colors">An array of color values.</param>
+        /// <param name="colors">A enumerator of color values.</param>
         /// <exception cref="ArgumentNullException"><paramref name="colors"/> is null.</exception>
-        public Palette(Color2[] colors)
+        public Palette(IEnumerable<Color2> colors)
         {
-            this.colors = colors ?? throw new ArgumentNullException("colors");
+            if (colors == null)
+                throw new ArgumentNullException(nameof(colors));
+
+            this.colors = colors.ToArray();
         }
 
         /// <summary>

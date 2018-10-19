@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using GBAHL.Text;
 using GBAHL.Drawing;
@@ -116,10 +115,9 @@ namespace GBAHL.IO
         /// Reads a 2-byte BGR555 color from the stream and advances the position by two bytes.
         /// </summary>
         /// <returns>A <see cref="Color"/> read from the stream.</returns>
-        public Color ReadColor()
+        public Color2 ReadColor()
         {
-            var c = ReadUInt16();
-            return Color.FromArgb((c & 0x1F) << 3, (c >> 5 & 0x1F) << 3, (c >> 10 & 0x1F) << 3);
+            return new Color2(ReadUInt16());
         }
 
         /// <summary>
@@ -130,29 +128,31 @@ namespace GBAHL.IO
         /// <exception cref="ArgumentOutOfRangeException">colors was not 16 or 256.</exception>
         public Palette ReadPalette(int colors = 16)
         {
-            var pal = new Palette(Color.Black, colors);
+            var pal = new Palette(Color2.Black, colors);
             for (int i = 0; i < colors; i++)
                 pal[i] = ReadColor();
             return pal;
         }
 
         /// <summary>
-        /// lol reads a compressed palette or something.
+        /// Reads a compressed palette from the stream.
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException">the decompressed bytes were not the correct size (32 or 512).</exception>
         public Palette ReadCompressedPalette()
         {
             var buffer = ReadCompressedBytes();
-            var pal = new Palette(Color.Black, buffer.Length / 2);
-            for (int i = 0; i < pal.Length; i++)
+
+            var palette = new Palette(Color2.Black, buffer.Length / 2);
+            for (int i = 0; i < palette.Length; i++)
             {
-                var color = (buffer[i * 2 + 1] << 8) | buffer[i * 2];
-                pal[i] = Color.FromArgb((color & 0x1F) << 3, (color >> 5 & 0x1F) << 3, (color >> 10 & 0x1F) << 3);
+                palette[i] = new Color2((ushort)((buffer[i * 2 + 1] << 8) | buffer[i * 2]));
             }
-            return pal;
+
+            return palette;
         }
 
+        /*
         public Sprite_old ReadSprite(int tiles, BitDepth_old bitDepth)
         {
             if (bitDepth == BitDepth_old.Four)
@@ -229,6 +229,7 @@ namespace GBAHL.IO
                 return null;
             }
         }
+        */
 
         #endregion
 
@@ -270,36 +271,38 @@ namespace GBAHL.IO
                 WriteText(str, entryLength, encoding);
         }
 
-        public void WriteColor(Color color)
+        public void WriteColor(Color2 color)
         {
-            WriteUInt16((ushort)((color.R / 8) | (color.G / 8 << 5) | (color.B / 3 << 10)));
+            WriteUInt16(color.ToBgr());
         }
 
         public void WritePalette(Palette palette)
         {
-            foreach (Color color in palette)
-                WriteUInt16((ushort)((color.R / 8) | (color.G / 8 << 5) | (color.B / 3 << 10)));
+            foreach (var color in palette)
+            {
+                WriteColor(color);
+            }
         }
 
         public void WriteCompressedPalette(Palette palette)
         {
-            // buffer to hold uncompressed color data
+            // Buffer to hold uncompressed color data
             byte[] buffer = new byte[palette.Length * 2];
 
-            // copy colors to buffer
+            // Copy colors to buffer
             for (int i = 0; i < palette.Length; i++)
             {
-                Color color = palette[i];
-                ushort u = (ushort)((color.R / 8) | (color.G / 8 << 5) | (color.B / 3 << 10));
+                var bgr = palette[i].ToBgr();
 
-                buffer[i * 2] = (byte)u;
-                buffer[i * 2 + 1] = (byte)(u >> 8);
+                buffer[i * 2] = (byte)bgr;
+                buffer[i * 2 + 1] = (byte)(bgr >> 8);
             }
 
-            // write compressed bytes
+            // Write compressed bytes
             WriteCompressedBytes(buffer);
         }
 
+        /*
         public void WriteSprite(Sprite_old sprite)
         {
             if (sprite.BitDepth == BitDepth_old.Four)
@@ -327,6 +330,7 @@ namespace GBAHL.IO
         {
             WriteCompressedBytes(sprite.To8Bpp());
         }
+        */
 
         #endregion
 

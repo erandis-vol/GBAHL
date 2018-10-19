@@ -5,7 +5,7 @@ namespace GBAHL.Drawing
     /// <summary>
     /// Represents a 15-bit BGR555 color.
     /// </summary>
-    public struct Color2 : IEquatable<Color2>
+    public partial struct Color2 : IEquatable<Color2>
     {
         private const byte MaxComponentValue = (1 << 5) - 1;
 

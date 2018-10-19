@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GBAHL.Drawing
 {
@@ -23,13 +24,15 @@ namespace GBAHL.Drawing
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Tileset"/> class for the specified tile array.
+        /// Initializes a new instance of the <see cref="Tileset"/> class for the specified tiles.
         /// </summary>
-        /// <param name="tiles">The tile array.</param>
-        public Tileset(Tile[] tiles)
+        /// <param name="tiles"></param>
+        public Tileset(IEnumerable<Tile> tiles)
         {
-            // Should we clone the tile array?
-            this.tiles = tiles ?? throw new ArgumentNullException(nameof(tiles));
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            this.tiles = tiles.ToArray();
         }
 
         /// <summary>
