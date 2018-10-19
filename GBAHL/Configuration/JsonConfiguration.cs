@@ -27,7 +27,7 @@ namespace GBAHL.Configuration
             }
         }
 
-        public T Load<T>(string s)
+        public T LoadString<T>(string s)
         {
             if (s == null)
                 throw new ArgumentNullException(nameof(s));
@@ -36,6 +36,19 @@ namespace GBAHL.Configuration
             using (var jr = new JsonTextReader(sr))
             {
                 return serializer.Deserialize<T>(jr);
+            }
+        }
+
+        public T LoadFile<T>(string filename)
+        {
+            return LoadFile<T>(new FileInfo(filename));
+        }
+
+        public T LoadFile<T>(FileInfo file)
+        {
+            using (var stream = file.OpenRead())
+            {
+                return Load<T>(stream);
             }
         }
 
@@ -51,14 +64,26 @@ namespace GBAHL.Configuration
             }
         }
 
-        public void Save<T>(TextWriter textWriter, T config)
+        public string SaveString<T>(T config)
         {
-            if (textWriter == null)
-                throw new ArgumentNullException(nameof(textWriter));
-
-            using (var jw = new JsonTextWriter(textWriter))
+            using (var sw = new StringWriter())
+            using (var jw = new JsonTextWriter(sw))
             {
                 serializer.Serialize(jw, config);
+                return sw.ToString();
+            }
+        }
+
+        public void SaveFile<T>(string filename, T config)
+        {
+            SaveFile<T>(new FileInfo(filename), config);
+        }
+
+        public void SaveFile<T>(FileInfo file, T config)
+        {
+            using (var stream = file.Create())
+            {
+                Save<T>(stream, config);
             }
         }
     }

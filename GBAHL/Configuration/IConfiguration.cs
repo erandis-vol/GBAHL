@@ -9,8 +9,12 @@ namespace GBAHL.Configuration
     public interface IConfiguration
     {
         T Load<T>(Stream stream);
-        T Load<T>(string s);
+        T LoadString<T>(string s);
+        T LoadFile<T>(string filename);
+        T LoadFile<T>(FileInfo file);
         void Save<T>(Stream stream, T config);
-        void Save<T>(TextWriter textWriter, T config);
+        string SaveString<T>(T config);
+        void SaveFile<T>(string filename, T config);
+        void SaveFile<T>(FileInfo file, T config);
     }
 }

@@ -11,7 +11,7 @@ namespace GBAHL.TestConsole
     {
         static void Main(string[] args)
         {
-            TestAssemblyWriter();
+            TestJsonConfigurationLoad();
 
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey(true);
@@ -34,11 +34,7 @@ namespace GBAHL.TestConsole
                 Version = 1,
             };
 
-            using (var sw = new StringWriter())
-            {
-                JsonConfiguration.Default.Save(sw, data);
-                Console.WriteLine(sw.ToString());
-            }
+            Console.WriteLine(JsonConfiguration.Default.SaveString(data));
         }
 
         static void TestJsonConfigurationLoad()
@@ -55,13 +51,9 @@ namespace GBAHL.TestConsole
 
             Console.WriteLine(json);
 
-            var data = JsonConfiguration.Default.Load<TestConfigurationData>(json);
+            var data = JsonConfiguration.Default.LoadString<TestConfigurationData>(json);
 
-            using (var sw = new StringWriter())
-            {
-                JsonConfiguration.Default.Save(sw, data);
-                Console.WriteLine(sw.ToString());
-            }
+            Console.WriteLine(JsonConfiguration.Default.SaveString(data));
         }
 
         static void TestAssemblyWriter()
