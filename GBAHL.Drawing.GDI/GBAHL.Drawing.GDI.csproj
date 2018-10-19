@@ -43,8 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColorHelper.cs" />
+    <Compile Include="FastBitmap.cs" />
     <Compile Include="ImageHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpriteRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GBAHL\GBAHL.csproj">

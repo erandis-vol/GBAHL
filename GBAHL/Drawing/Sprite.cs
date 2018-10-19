@@ -2,7 +2,7 @@
 
 namespace GBAHL.Drawing
 {
-    public abstract class Sprite
+    public class Sprite
     {
         private int width;
         private int height;
@@ -42,11 +42,6 @@ namespace GBAHL.Drawing
         }
 
         /// <summary>
-        /// Called whenever the size of the sprite is changed.
-        /// </summary>
-        protected abstract void OnSizeChanged();
-
-        /// <summary>
         /// Gets or sets the tileset.
         /// </summary>
         public Tileset Tileset { get; set; }
@@ -74,8 +69,6 @@ namespace GBAHL.Drawing
                     height = Tileset.Length / width;
                     if (Tileset.Length % width != 0)
                         height++;
-
-                    OnSizeChanged();
                 }
             }
         }
