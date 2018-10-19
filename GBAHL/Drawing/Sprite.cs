@@ -2,8 +2,11 @@
 
 namespace GBAHL.Drawing
 {
-    public class Sprite
+    public abstract class Sprite
     {
+        private int width;
+        private int height;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Sprite"/> class for the specified tileset and palette.
         /// </summary>
@@ -39,6 +42,11 @@ namespace GBAHL.Drawing
         }
 
         /// <summary>
+        /// Called whenever the size of the sprite is changed.
+        /// </summary>
+        protected abstract void OnSizeChanged();
+
+        /// <summary>
         /// Gets or sets the tileset.
         /// </summary>
         public Tileset Tileset { get; set; }
@@ -51,24 +59,35 @@ namespace GBAHL.Drawing
         /// <summary>
         /// Gets or sets the width.
         /// </summary>
-        public int Width { get; set; }
+        public int Width
+        {
+            get => width;
+            set
+            {
+                if (value <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(Width));
+
+                if (width != value)
+                {
+                    width = value;
+
+                    height = Tileset.Length / width;
+                    if (Tileset.Length % width != 0)
+                        height++;
+
+                    OnSizeChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the height.
         /// </summary>
-        public int Height
-        {
-            get
-            {
-                if (Tileset == null)
-                    return 0;
+        public int Height => height;
 
-                var height = Tileset.Length / Width;
-                if (Tileset.Length % Width > 0)
-                    height++;
-
-                return height;
-            }
-        }
+        /// <summary>
+        /// Determines whether the sprite has tiles beyond the length of the tileset.
+        /// </summary>
+        public bool HasExtraTiles => width * height > Tileset.Length;
     }
 }
