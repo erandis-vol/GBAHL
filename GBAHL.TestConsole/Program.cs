@@ -11,10 +11,7 @@ namespace GBAHL.TestConsole
     {
         static void Main(string[] args)
         {
-            TestJsonConfigurationLoad();
-
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey(true);
+            TestJsonConfigurationSave();
         }
 
         public class TestConfigurationData
