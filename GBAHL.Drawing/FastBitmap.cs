@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace GBAHL.Drawing.GDI
+namespace GBAHL.Drawing
 {
     public class FastBitmap : IDisposable
     {

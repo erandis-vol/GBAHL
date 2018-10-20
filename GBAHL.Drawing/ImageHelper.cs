@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 
-namespace GBAHL.Drawing.GDI
+namespace GBAHL.Drawing
 {
     public static class ImageHelper
     {

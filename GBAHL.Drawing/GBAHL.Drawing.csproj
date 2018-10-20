@@ -7,7 +7,7 @@
     <ProjectGuid>{AB53F5FF-0412-44F3-87AF-187A2BFB5012}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GBAHL.Drawing.GDI</RootNamespace>
+    <RootNamespace>GBAHL.Drawing</RootNamespace>
     <AssemblyName>GBAHL.Drawing</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

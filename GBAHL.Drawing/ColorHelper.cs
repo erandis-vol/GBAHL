@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace GBAHL.Drawing.GDI
+namespace GBAHL.Drawing
 {
     /// <summary>
     /// Provides methods for colors.

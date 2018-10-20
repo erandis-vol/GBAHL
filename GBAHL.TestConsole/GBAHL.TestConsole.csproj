@@ -51,9 +51,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GBAHL.Drawing.GDI\GBAHL.Drawing.GDI.csproj">
+    <ProjectReference Include="..\GBAHL.Drawing\GBAHL.Drawing.csproj">
       <Project>{ab53f5ff-0412-44f3-87af-187a2bfb5012}</Project>
-      <Name>GBAHL.Drawing.GDI</Name>
+      <Name>GBAHL.Drawing</Name>
     </ProjectReference>
     <ProjectReference Include="..\GBAHL\GBAHL.csproj">
       <Project>{04654d99-9a73-4a12-a3c9-19af6779330b}</Project>

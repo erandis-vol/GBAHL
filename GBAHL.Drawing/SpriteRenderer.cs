@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GBAHL.Drawing.GDI
+namespace GBAHL.Drawing
 {
     /// <summary>
     /// Provides methods for drawing sprites.

@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using GBAHL.IO;
 using System.IO;
 using GBAHL.Drawing;
-using GBAHL.Drawing.GDI;
 
 namespace GBAHL.Tests.Tests
 {
