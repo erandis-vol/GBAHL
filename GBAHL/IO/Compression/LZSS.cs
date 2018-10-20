@@ -6,50 +6,7 @@ namespace GBAHL.IO.Compression
 {
     public static class LZSS
     {
-        public static byte[] Decompress(byte[] buffer)
-        {
-            if (buffer[0] != 0x10)
-                throw new InvalidDataException();
-
-            // 24-bit length decompressed
-            var length = buffer[1] | (buffer[2] << 8) | (buffer[3] << 16);
-            var result = new byte[length];
-
-            // decompress
-            int i = 4;      // position in result buffer
-            int j = 0;   // size of data decompressed so far
-
-            int pos = 0;    // current flag position
-            int flags = 0;  // current working flags (byte)
-            while (j < length)
-            {
-                if (pos == 0)
-                    flags = buffer[i++];
-
-                if ((flags & (0x80 >> pos)) == 0)
-                {
-                    result[j++] = buffer[i++];
-                }
-                else
-                {
-                    var block = (buffer[i++] << 8) | buffer[i++];
-
-                    var n = (block >> 12) + 3;
-                    var disp = j - (block & 0xFFF) - 1;
-
-                    while (n-- > 0 && j < length)
-                    {
-                        result[j++] = result[disp++];
-                    }
-                }
-
-                pos = ++pos % 8;
-            }
-
-            return result;
-        }
-
-        public static byte[] Decompress2(byte[] bytes)
+        public static byte[] Decompress(byte[] bytes)
         {
             if (bytes[0] != 0x10)
                 throw new InvalidDataException();
