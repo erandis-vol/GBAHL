@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using GBAHL.IO;
 using System.IO;
 using GBAHL.Drawing;
+using System.Diagnostics;
 
 namespace GBAHL.Tests.Tests
 {
@@ -34,6 +35,8 @@ namespace GBAHL.Tests.Tests
 
             if (Program.GameFilePath != null)
             {
+                var watch = Stopwatch.StartNew();
+
                 Tileset tileset;
                 Palette palette;
 
@@ -59,6 +62,10 @@ namespace GBAHL.Tests.Tests
 
                 // Display and display the sprite
                 pictureBox1.Image = image = SpriteRenderer.Draw(sprite);
+
+                // Collect timing information
+                watch.Stop();
+                label3.Text = watch.Elapsed.TotalSeconds + " s";
             }
         }
     }

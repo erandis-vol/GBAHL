@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GBAHL.IO.Compression
 {
@@ -7,43 +8,82 @@ namespace GBAHL.IO.Compression
     {
         public static byte[] Decompress(byte[] buffer)
         {
-            // 0x10 marks lzss compressed data
             if (buffer[0] != 0x10)
-                throw new Exception("This data is not compressed!");
+                throw new InvalidDataException();
 
             // 24-bit length decompressed
-            int length = buffer[1] | (buffer[2] << 8) | (buffer[3] << 16);
-            byte[] result = new byte[length];
+            var length = buffer[1] | (buffer[2] << 8) | (buffer[3] << 16);
+            var result = new byte[length];
 
             // decompress
             int i = 4;      // position in result buffer
-            int size = 0;   // size of data decompressed so far
+            int j = 0;   // size of data decompressed so far
+
             int pos = 0;    // current flag position
             int flags = 0;  // current working flags (byte)
-            while (size < length)
+            while (j < length)
             {
-                if (pos == 0) flags = buffer[i++];
+                if (pos == 0)
+                    flags = buffer[i++];
 
                 if ((flags & (0x80 >> pos)) == 0)
                 {
-                    // copy value to result buffer
-                    result[size++] = buffer[i++];
+                    result[j++] = buffer[i++];
                 }
                 else
                 {
-                    // copy block from result buffer
-                    int block = (buffer[i++] << 8) | buffer[i++];
+                    var block = (buffer[i++] << 8) | buffer[i++];
 
-                    int bytes = (block >> 12) + 3;
-                    int disp = size - (block & 0xFFF) - 1;
+                    var n = (block >> 12) + 3;
+                    var disp = j - (block & 0xFFF) - 1;
 
-                    while (bytes-- > 0 && size < length)
+                    while (n-- > 0 && j < length)
                     {
-                        result[size++] = result[disp++];
+                        result[j++] = result[disp++];
                     }
                 }
 
                 pos = ++pos % 8;
+            }
+
+            return result;
+        }
+
+        public static byte[] Decompress2(byte[] bytes)
+        {
+            if (bytes[0] != 0x10)
+                throw new InvalidDataException();
+
+            var length = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
+            var result = new byte[length];
+
+            var i = 4;
+            var j = 0;
+
+            while (j < length)
+            {
+                var flags = bytes[i++];
+
+                for (int k = 7; k >= 0 && j < length; k--)
+                {
+                    var isCompressed = ((flags >> k) & 1) == 1;
+                    if (isCompressed)
+                    {
+                        var data = (bytes[i++] << 8) | bytes[i++];
+
+                        var n = (data >> 12) + 3;
+                        var disp = j - (data & 0xFFF) - 1;
+
+                        while (n-- > 0 && j < length)
+                        {
+                            result[j++] = result[disp++];
+                        }
+                    }
+                    else
+                    {
+                        result[j++] = bytes[i++];
+                    }
+                }
             }
 
             return result;

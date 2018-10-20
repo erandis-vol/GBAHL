@@ -78,42 +78,39 @@ namespace GBAHL.IO
             var compressionType = ReadByte();
             if (compressionType == CompressionLZSS)
             {
-                // read decompressed size
                 var length = ReadInt24();
-                var buffer = new byte[length];
+                var result = new byte[length];
 
-                // decompress the data
-                int size = 0,
-                    pos = 0,
-                    flags = 0;
+                //var i = 4;
+                var j = 0;
 
-                while (size < length)
+                while (j < length)
                 {
-                    if (pos == 0) flags = ReadByte();
+                    var flags = ReadByte();
 
-                    if ((flags & (0x80 >> pos)) == 0)
+                    for (int k = 7; k >= 0 && j < length; k--)
                     {
-                        // Uncompressed
-                        buffer[size++] = ReadByte();
-                    }
-                    else
-                    {
-                        // Compressed
-                        int block = (ReadByte() << 8) | ReadByte();
-
-                        int bytes = (block >> 12) + 3;
-                        int disp = size - (block & 0xFFF) - 1;
-
-                        while (bytes-- > 0 && size < length)
+                        var isCompressed = ((flags >> k) & 1) == 1;
+                        if (isCompressed)
                         {
-                            buffer[size++] = buffer[disp++];
+                            var data = (ReadByte() << 8) | ReadByte();
+
+                            var n = (data >> 12) + 3;
+                            var disp = j - (data & 0xFFF) - 1;
+
+                            while (n-- > 0 && j < length)
+                            {
+                                result[j++] = result[disp++];
+                            }
+                        }
+                        else
+                        {
+                            result[j++] = ReadByte();
                         }
                     }
-
-                    pos = ++pos % 8;
                 }
 
-                return buffer;
+                return result;
             }
             else
             {

@@ -58,6 +58,7 @@
     <Compile Include="Drawing\Tile.cs" />
     <Compile Include="Drawing\Tileset.cs" />
     <Compile Include="IO\Compression\LZSS.cs" />
+    <Compile Include="IO\Compression\RLE.cs" />
     <Compile Include="IO\GbaBinaryStream.cs" />
     <Compile Include="IO\BinaryStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
