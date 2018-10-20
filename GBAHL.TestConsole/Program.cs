@@ -11,7 +11,7 @@ namespace GBAHL.TestConsole
     {
         static void Main(string[] args)
         {
-            TestJsonConfigurationSave();
+            
         }
 
         public class TestConfigurationData
@@ -19,38 +19,6 @@ namespace GBAHL.TestConsole
             public Dictionary<string, int> Offsets { get; set; }
 
             public int Version { get; set; }
-        }
-
-        static void TestJsonConfigurationSave()
-        {
-            var data = new TestConfigurationData {
-                Offsets = new Dictionary<string, int> {
-                    ["TEST_1"] = 0x123456,
-                    ["TEST_2"] = 0xABCDEF,
-                },
-                Version = 1,
-            };
-
-            Console.WriteLine(JsonConfiguration.Default.SaveString(data));
-        }
-
-        static void TestJsonConfigurationLoad()
-        {
-            var json = @"
-            {
-                ""Offsets"": {
-                    ""TEST_1"": 0x123456,
-                    ""TEST_2"": 0xABCDEF
-                },
-                ""Version"": 1
-            }
-            ";
-
-            Console.WriteLine(json);
-
-            var data = JsonConfiguration.Default.LoadString<TestConfigurationData>(json);
-
-            Console.WriteLine(JsonConfiguration.Default.SaveString(data));
         }
 
         static void TestAssemblyWriter()
