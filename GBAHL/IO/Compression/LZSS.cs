@@ -7,7 +7,7 @@ namespace GBAHL.IO.Compression
     {
         public static byte[] Decompress(byte[] buffer)
         {
-            // 0x10 marks lz77 compressed data
+            // 0x10 marks lzss compressed data
             if (buffer[0] != 0x10)
                 throw new Exception("This data is not compressed!");
 

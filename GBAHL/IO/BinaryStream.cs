@@ -9,8 +9,8 @@ namespace GBAHL.IO
     /// </summary>
     public class BinaryStream : IDisposable
     {
-        private const int BUFFER_SIZE = 8; // tune as needed, 8 is all we need for 64-bit integers
-        private byte[] buffer = new byte[BUFFER_SIZE];
+        protected const int BufferSize = 8; // tune as needed, 8 is all we need for 64-bit integers
+        private byte[] buffer = new byte[BufferSize];
 
         private Stream stream;
         private bool disposed;
@@ -281,118 +281,7 @@ namespace GBAHL.IO
             return sb.ToString();
         }
 
-        /// <summary>
-        /// If possible, reads LZSS compressed bytes from the stream into a byte array and advances the position.
-        /// </summary>
-        /// <returns>The decompressed bytes.</returns>
-        public byte[] ReadCompressedBytes()
-        {
-            // check if actually compressed
-            if (!PeekCompressed())
-                return new byte[0];
 
-            // skip L7ZZ identifier
-            Skip(1);
-
-            // read decompressed size
-            var length = ReadInt24();
-            var buffer = new byte[length];
-
-            // decompress the data
-            int size = 0, 
-                pos = 0, 
-                flags = 0;
-
-            while (size < length)
-            {
-                if (pos == 0) flags = ReadByte();
-
-                if ((flags & (0x80 >> pos)) == 0)
-                {
-                    // read value to buffer
-                    buffer[size++] = ReadByte();
-                }
-                else
-                {
-                    // copy block from buffer
-                    int block = (ReadByte() << 8) | ReadByte();
-
-                    int bytes = (block >> 12) + 3;
-                    int disp = size - (block & 0xFFF) - 1;
-
-                    while (bytes-- > 0 && size < length)
-                    {
-                        buffer[size++] = buffer[disp++];
-                    }
-                }
-
-                pos = ++pos % 8;
-            }
-
-            return buffer;
-        }
-
-        /// <summary>
-        /// If possible, reads LZSS compressed data and returns the number of bytes it occupied in the ROM.
-        /// </summary>
-        /// <returns></returns>
-        public int ReadCompressedSize()
-        {
-            int start = Position;
-
-            // check for compression identifier
-            if (ReadByte() != 0x10)
-                return -1;
-
-            // get decompressed length
-            var length = ReadInt24();
-
-            // try to decompress the data
-            int size = 0, pos = 0, flags = 0;
-            while (size < length)
-            {
-                if (Position >= buffer.Length)
-                    return -1;
-
-                if (pos == 0)
-                    flags = ReadByte();
-
-                if ((flags & (0x80 >> pos)) == 0)
-                {
-                    size++;
-                    Skip(1);
-                }
-                else
-                {
-                    int block = (ReadByte() << 8) | ReadByte();
-
-                    int bytes = (block >> 12) + 3;
-                    int disp = size - (block & 0xFFF) - 1;
-
-                    while (bytes-- > 0 && size < length)
-                    {
-                        if (disp < 0 || disp >= length)
-                            return -1;
-
-                        size++;
-                        disp++;
-                    }
-                }
-
-                pos = ++pos % 8;
-            }
-
-            return Position - start;
-        }
-
-        /// <summary>
-        /// Returns whether the following data could be L7ZZ compressed.
-        /// </summary>
-        /// <returns><c>true</c> if it could be; <c>false</c> otherwise.</returns>
-        public bool PeekCompressed()
-        {
-            return PeekByte() == 0x10;
-        }
 
         /// <summary>
         /// Reads a 3-byte unsigned integer from the stream and advances the position by three bytes.
@@ -512,19 +401,6 @@ namespace GBAHL.IO
         {
             // utf8 encoded string
             WriteBytes(Encoding.UTF8.GetBytes(str));
-        }
-
-        /// <summary>
-        /// Compresses and writes an array of bytes to the stream and advances the position.
-        /// </summary>
-        /// <param name="buffer">The <see cref="byte"/> array to compress.</param>
-        public void WriteCompressedBytes(byte[] buffer)
-        {
-            // compress buffer
-            byte[] bytes = Compression.LZSS.Compress(buffer);
-
-            // write buffer to ROM
-            stream.Write(bytes, 0, bytes.Length);
         }
 
         #endregion

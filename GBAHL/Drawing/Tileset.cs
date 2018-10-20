@@ -59,6 +59,15 @@ namespace GBAHL.Drawing
         }
 
         /// <summary>
+        /// Converts the tileset to an array of tiles.
+        /// </summary>
+        /// <returns></returns>
+        public Tile[] ToArray()
+        {
+            return (Tile[])tiles.Clone();
+        }
+
+        /// <summary>
         /// Gets the number of tiles.
         /// </summary>
         public int Length => tiles.Length;

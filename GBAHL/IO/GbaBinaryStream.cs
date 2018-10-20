@@ -11,6 +11,10 @@ namespace GBAHL.IO
     /// </summary>
     public class GbaBinaryStream : BinaryStream
     {
+        private const int CompressionLZSS = 0x10;
+        private const int CompressionHuffman = 0x20;
+        private const int CompressionRLE = 0x30;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GbaBinaryStream"/> class based on the specified <see cref="Stream"/>.
         /// </summary>
@@ -62,6 +66,116 @@ namespace GBAHL.IO
                 return ptr;
             }
             return -1;
+        }
+
+        /// <summary>
+        /// If possible, reads compressed data from the stream into a byte array and advances the position.
+        /// </summary>
+        /// <returns>The decompressed bytes.</returns>
+        /// <exception cref="InvalidDataException">the data uses an unsupported compression format or is not compressed.</exception>
+        public byte[] ReadCompressedBytes()
+        {
+            var compressionType = ReadByte();
+            if (compressionType == CompressionLZSS)
+            {
+                // read decompressed size
+                var length = ReadInt24();
+                var buffer = new byte[length];
+
+                // decompress the data
+                int size = 0,
+                    pos = 0,
+                    flags = 0;
+
+                while (size < length)
+                {
+                    if (pos == 0) flags = ReadByte();
+
+                    if ((flags & (0x80 >> pos)) == 0)
+                    {
+                        // Uncompressed
+                        buffer[size++] = ReadByte();
+                    }
+                    else
+                    {
+                        // Compressed
+                        int block = (ReadByte() << 8) | ReadByte();
+
+                        int bytes = (block >> 12) + 3;
+                        int disp = size - (block & 0xFFF) - 1;
+
+                        while (bytes-- > 0 && size < length)
+                        {
+                            buffer[size++] = buffer[disp++];
+                        }
+                    }
+
+                    pos = ++pos % 8;
+                }
+
+                return buffer;
+            }
+            else
+            {
+                throw new InvalidDataException($"Unsupported compression type {compressionType:x2}.");
+            }
+        }
+
+        /// <summary>
+        /// If possible, reads compressed data and returns the number of bytes it occupies in the ROM.
+        /// </summary>
+        /// <returns>The number of bytes the compressed data, or -1 if there is an error.</returns>
+        public int ReadCompressedSize()
+        {
+            var start = Position;
+
+            var compressionType = ReadByte();
+            if (compressionType == CompressionLZSS)
+            {
+                // get decompressed length
+                var length = ReadInt24();
+
+                // try to decompress the data
+                int size = 0, pos = 0, flags = 0;
+                while (size < length)
+                {
+                    if (Position >= BufferSize)
+                        return -1;
+
+                    if (pos == 0)
+                        flags = ReadByte();
+
+                    if ((flags & (0x80 >> pos)) == 0)
+                    {
+                        size++;
+                        Skip(1);
+                    }
+                    else
+                    {
+                        int block = (ReadByte() << 8) | ReadByte();
+
+                        int bytes = (block >> 12) + 3;
+                        int disp = size - (block & 0xFFF) - 1;
+
+                        while (bytes-- > 0 && size < length)
+                        {
+                            if (disp < 0 || disp >= length)
+                                return -1;
+
+                            size++;
+                            disp++;
+                        }
+                    }
+
+                    pos = ++pos % 8;
+                }
+
+                return Position - start;
+            }
+            else
+            {
+                return -1;
+            }
         }
 
         /// <summary>
@@ -174,85 +288,6 @@ namespace GBAHL.IO
             return new Tileset(BitDepth.Decode8(ReadCompressedBytes()));
         }
 
-        /*
-        public Sprite_old ReadSprite(int tiles, BitDepth_old bitDepth)
-        {
-            if (bitDepth == BitDepth_old.Four)
-                return ReadSprite4(tiles);
-            else
-                return ReadSprite8(tiles);
-        }
-
-        public Sprite_old ReadSprite4(int tiles)
-        {
-            try
-            {
-                return Sprite_old.From4Bpp(ReadBytes(tiles * 32));
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public Sprite_old ReadSprite8(int tiles)
-        {
-            try
-            {
-                return Sprite_old.From8Bpp(ReadBytes(tiles * 64));
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Reads a compressed sprite of the given bit depth.
-        /// </summary>
-        /// <param name="bitDepth"></param>
-        /// <returns>A sprite.</returns>
-        public Sprite_old ReadCompressedSprite(BitDepth_old bitDepth)
-        {
-            if (bitDepth == BitDepth_old.Four)
-                return ReadCompressedSprite4();
-            else
-                return ReadCompressedSprite8();
-        }
-
-        /// <summary>
-        /// Reads a compressed 4BPP sprite.
-        /// </summary>
-        /// <returns>A sprite.</returns>
-        public Sprite_old ReadCompressedSprite4()
-        {
-            try
-            {
-                return Sprite_old.From4Bpp(ReadCompressedBytes());
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Reads a compressed 8BPP sprite.
-        /// </summary>
-        /// <returns></returns>
-        public Sprite_old ReadCompressedSprite8()
-        {
-            try
-            {
-                return Sprite_old.From8Bpp(ReadCompressedBytes());
-            }
-            catch
-            {
-                return null;
-            }
-        }
-        */
-
         #endregion
 
         #region Write
@@ -267,6 +302,17 @@ namespace GBAHL.IO
                 WriteUInt32(0u);
             else
                 WriteUInt32((uint)offset + 0x08000000u);
+        }
+
+        /// <summary>
+        /// Compresses and writes an array of bytes to the stream and advances the position.
+        /// </summary>
+        /// <param name="buffer">The <see cref="byte"/> array to compress.</param>
+        public void WriteCompressedBytes(byte[] buffer)
+        {
+            // TODO: Allow choice of compression method
+            var compressed = Compression.LZSS.Compress(buffer);
+            WriteBytes(compressed);
         }
 
         public void WriteText(string str, Encoding encoding)
@@ -324,35 +370,69 @@ namespace GBAHL.IO
             WriteCompressedBytes(buffer);
         }
 
-        /*
-        public void WriteSprite(Sprite_old sprite)
+        public void WriteTiles4(Tileset tiles)
         {
-            if (sprite.BitDepth == BitDepth_old.Four)
-                WriteSprite4(sprite);
-            else
-                WriteSprite8(sprite);
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode4(tiles));
         }
 
-        public void WriteSprite4(Sprite_old sprite)
+        public void WriteTiles4(Tile[] tiles)
         {
-            WriteBytes(sprite.To4Bpp());
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode4(tiles));
         }
 
-        public void WriteSprite8(Sprite_old sprite)
+        public void WriteTiles8(Tileset tiles)
         {
-            WriteBytes(sprite.To8Bpp());
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode8(tiles));
         }
 
-        public void WriteCompressedSprite4(Sprite_old sprite)
+        public void WriteTiles8(Tile[] tiles)
         {
-            WriteCompressedBytes(sprite.To4Bpp());
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode8(tiles));
         }
 
-        public void WriteCompressedSprite8(Sprite_old sprite)
+        public void WriteCompressedTiles4(Tileset tiles)
         {
-            WriteCompressedBytes(sprite.To8Bpp());
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode4(tiles));
         }
-        */
+
+        public void WriteCompressedTiles4(Tile[] tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode4(tiles));
+        }
+
+        public void WriteCompressedTiles8(Tileset tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode8(tiles));
+        }
+
+        public void WriteCompressedTiles8(Tile[] tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode8(tiles));
+        }
 
         #endregion
 
