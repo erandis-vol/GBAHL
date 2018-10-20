@@ -15,9 +15,9 @@ namespace GBAHL.Drawing
         /// <param name="bgr"></param>
         public Color2(ushort bgr)
         {
-            R = (byte)((bgr & 0x1F) << 3);
-            G = (byte)((bgr >> 5 & 0x1F) << 3);
-            B = (byte)((bgr >> 10 & 0x1F) << 3);
+            R = (byte)(bgr & 0x1F);
+            G = (byte)((bgr >> 5) & 0x1F);
+            B = (byte)((bgr >> 10) & 0x1F);
         }
 
         /// <summary>

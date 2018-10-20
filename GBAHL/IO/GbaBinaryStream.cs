@@ -152,6 +152,28 @@ namespace GBAHL.IO
             return palette;
         }
 
+        public Tileset ReadTiles4(int tiles)
+        {
+            return new Tileset(BitDepth.Decode4(ReadBytes(tiles * 32)));
+        }
+
+        public Tileset ReadTiles8(int tiles)
+        {
+            return new Tileset(BitDepth.Decode8(ReadBytes(tiles * 32)));
+        }
+
+        public Tileset ReadCompressedTiles4()
+        {
+            // TODO: Safety checks
+            return new Tileset(BitDepth.Decode4(ReadCompressedBytes()));
+        }
+
+        public Tileset ReadCompressedTiles8()
+        {
+            // TODO: Safety checks
+            return new Tileset(BitDepth.Decode8(ReadCompressedBytes()));
+        }
+
         /*
         public Sprite_old ReadSprite(int tiles, BitDepth_old bitDepth)
         {

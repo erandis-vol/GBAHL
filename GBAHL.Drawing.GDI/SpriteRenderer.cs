@@ -17,6 +17,9 @@ namespace GBAHL.Drawing.GDI
             if (sprite == null)
                 throw new ArgumentNullException(nameof(sprite));
 
+            if (sprite.Tileset.Length == 0)
+                throw new ArgumentException("Sprite is empty.");
+
             var fb = new FastBitmap(sprite.Width << 3, sprite.Height << 3);
 
             var tileset = sprite.Tileset;

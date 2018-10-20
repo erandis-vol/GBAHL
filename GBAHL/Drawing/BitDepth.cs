@@ -81,7 +81,7 @@
 
         #region Decode
 
-        public static Tile[] DecodeTiles4(byte[] bytes)
+        public static Tile[] Decode4(byte[] bytes)
         {
             var tiles = new Tile[bytes.Length >> 5]; // / (8 * 8 / 2)
 
@@ -105,7 +105,7 @@
             }
         }
 
-        public static Tile[] DecodeTiles8(byte[] bytes)
+        public static Tile[] Decode8(byte[] bytes)
         {
             var tiles = new Tile[bytes.Length >> 6]; // / (8 * 8)
 
