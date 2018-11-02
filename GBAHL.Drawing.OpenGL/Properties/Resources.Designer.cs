@@ -63,9 +63,9 @@ namespace GBAHL.Drawing.OpenGL.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] SpriteFragmentShader {
+        internal static byte[] SpriteFragShader {
             get {
-                object obj = ResourceManager.GetObject("SpriteFragmentShader", resourceCulture);
+                object obj = ResourceManager.GetObject("SpriteFragShader", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace GBAHL.Drawing.OpenGL.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] SpriteVertexShader {
+        internal static byte[] SpriteVertShader {
             get {
-                object obj = ResourceManager.GetObject("SpriteVertexShader", resourceCulture);
+                object obj = ResourceManager.GetObject("SpriteVertShader", resourceCulture);
                 return ((byte[])(obj));
             }
         }

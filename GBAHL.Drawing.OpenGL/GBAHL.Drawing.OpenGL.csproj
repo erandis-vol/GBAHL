@@ -51,16 +51,19 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SpriteGL.cs" />
+    <Compile Include="ShaderCompileException.cs" />
+    <Compile Include="ShaderLinkException.cs" />
+    <Compile Include="SpriteRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShaderProgram.cs" />
+    <Compile Include="Shader.cs" />
     <Compile Include="Texture.cs" />
+    <Compile Include="VertexArray.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
-    <None Include="Properties\SpriteFragmentShader.glsl" />
-    <None Include="Properties\SpriteVertexShader.glsl" />
+    <None Include="Properties\Sprite.frag" />
+    <None Include="Properties\Sprite.vert" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GBAHL\GBAHL.csproj">

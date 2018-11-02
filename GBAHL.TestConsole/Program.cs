@@ -1,5 +1,4 @@
 ﻿using GBAHL.Asm;
-using GBAHL.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -2,13 +2,14 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace GBAHL.Drawing.OpenGL
 {
     /// <summary>
     /// Represents an OpenGL texture.
     /// </summary>
-    public class Texture : IDisposable
+    internal class Texture : IDisposable
     {
         private int texture;
         private bool isDisposed = false;
@@ -25,6 +26,12 @@ namespace GBAHL.Drawing.OpenGL
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
         }
 
+        public Texture(int width, int height, Color4[] data)
+            : this(width, height)
+        {
+            SetData(data);
+        }
+
         public void Dispose()
         {
             if (!isDisposed)
@@ -39,14 +46,13 @@ namespace GBAHL.Drawing.OpenGL
         {
             if (isDisposed)
             {
-                throw new ObjectDisposedException(nameof(ShaderProgram));
+                throw new ObjectDisposedException(nameof(Texture));
             }
         }
 
         public void Bind()
         {
             EnsureNotDisposed();
-
             GL.BindTexture(TextureTarget.Texture2D, texture);
         }
 
@@ -54,7 +60,9 @@ namespace GBAHL.Drawing.OpenGL
         {
             EnsureNotDisposed();
 
-            GL.BindTexture(TextureTarget.Texture2D, texture);
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
             GL.TexImage2D(
                 TextureTarget.Texture2D,
                 0,
@@ -66,6 +74,14 @@ namespace GBAHL.Drawing.OpenGL
                 PixelType.Float,
                 data
             );
+        }
+
+        public void SetData(Color2[] data)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            SetData(data.Select(x => x.ToColor4()).ToArray());
         }
 
         public int Width { get; }
