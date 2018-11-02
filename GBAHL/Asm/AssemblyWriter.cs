@@ -5,8 +5,6 @@ namespace GBAHL.Asm
 {
     public class AssemblyWriter : IDisposable
     {
-        public const char DefaultCommentChar = ';';
-
         private TextWriter writer;
 
         public AssemblyWriter()
@@ -40,25 +38,16 @@ namespace GBAHL.Asm
 
         public void WriteLine(string comment)
         {
-            WriteLine(comment, DefaultCommentChar);
-        }
-
-        public void WriteLine(string comment, char commentChar)
-        {
-            writer.WriteLine(commentChar + " " + comment);
+            WriteComment(comment);
+            WriteLine();
         }
 
         public void WriteLine(AssemblyLine line)
         {
-            WriteLine(line, null, DefaultCommentChar);
+            WriteLine(line, null);
         }
 
         public void WriteLine(AssemblyLine line, string comment)
-        {
-            WriteLine(line, comment, DefaultCommentChar);
-        }
-
-        public void WriteLine(AssemblyLine line, string comment, char commentChar)
         {
             if (line == null)
                 throw new ArgumentNullException(nameof(line));
@@ -69,17 +58,57 @@ namespace GBAHL.Asm
                     break;
 
                 case AssemblyLineType.Label:
-                    writer.Write(line.Value + ":");
+                    if (IndentLabels)
+                    {
+                        WriteIndentation();
+                    }
+
+                    WriteLabel(line);
                     break;
 
                 case AssemblyLineType.Directive:
-                case AssemblyLineType.Instruction:
-                    writer.Write(line.Value);
+                    if (IndentDirectives)
+                    {
+                        WriteIndentation();
+                    }
+
+                    WriteCommand(line);
 
                     if (line.Parameters.Length > 0)
                     {
-                        writer.Write(' ');
-                        writer.Write(string.Join(", ", line.Parameters));
+                        if (IndentParameters)
+                        {
+                            WriteIndentation();
+                        }
+                        else
+                        {
+                            writer.Write(' ');
+                        }
+
+                        WriteParameters(line);
+                    }
+                    break;
+
+                case AssemblyLineType.Instruction:
+                    if (IndentInstructions)
+                    {
+                        WriteIndentation();
+                    }
+
+                    WriteCommand(line);
+
+                    if (line.Parameters.Length > 0)
+                    {
+                        if (IndentParameters)
+                        {
+                            WriteIndentation();
+                        }
+                        else
+                        {
+                            writer.Write(' ');
+                        }
+
+                        WriteParameters(line);
                     }
                     break;
 
@@ -89,10 +118,40 @@ namespace GBAHL.Asm
 
             if (!string.IsNullOrEmpty(comment))
             {
-                writer.Write(" " + commentChar + " " + comment);
+                //WriteIndentation(); // or space?
+                writer.Write(' ');
+                WriteComment(comment);
             }
 
             writer.WriteLine();
+        }
+
+        private void WriteComment(string comment)
+        {
+            writer.Write("@ ");
+            writer.Write(comment);
+        }
+        
+        private void WriteIndentation()
+        {
+            // TODO: Allow customization of indentation style
+            writer.Write('\t');
+        }
+
+        private void WriteLabel(AssemblyLine line)
+        {
+            writer.Write(line.Value);
+            writer.Write(':');
+        }
+
+        private void WriteCommand(AssemblyLine line)
+        {
+            writer.Write(line.Value);
+        }
+
+        private void WriteParameters(AssemblyLine line)
+        {
+            writer.Write(string.Join(", ", line.Parameters));
         }
 
         public override string ToString()
@@ -104,5 +163,25 @@ namespace GBAHL.Asm
 
             return base.ToString();
         }
+
+        /// <summary>
+        /// Gets or sets whether instructions should be indented.
+        /// </summary>
+        public bool IndentInstructions { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether directives should be indented.
+        /// </summary>
+        public bool IndentDirectives { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether parameters should be indented.
+        /// </summary>
+        public bool IndentParameters { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets whether labels should be indented.
+        /// </summary>
+        public bool IndentLabels { get; set; } = false;
     }
 }

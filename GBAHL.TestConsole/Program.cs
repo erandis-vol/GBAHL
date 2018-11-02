@@ -10,7 +10,10 @@ namespace GBAHL.TestConsole
     {
         static void Main(string[] args)
         {
-            
+            TestAssemblyWriter();
+
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey(true);
         }
 
         public class TestConfigurationData
@@ -22,7 +25,12 @@ namespace GBAHL.TestConsole
 
         static void TestAssemblyWriter()
         {
-            using (var aw = new AssemblyWriter())
+            using (var aw = new AssemblyWriter() {
+                IndentDirectives = true,
+                IndentInstructions = true,
+                IndentLabels = false,
+                IndentParameters = true
+            })
             {
                 aw.WriteLine("This is a comment.");
                 aw.WriteLine("As is this.");
