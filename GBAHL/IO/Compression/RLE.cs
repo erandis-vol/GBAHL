@@ -6,9 +6,11 @@ namespace GBAHL.IO.Compression
 {
     public static class RLE
     {
+        public const byte Identifier = 0x30;
+
         public static byte[] Decompress(byte[] compressedBytes)
         {
-            if (compressedBytes[0] != 0x30)
+            if (compressedBytes[0] != Identifier)
                 throw new InvalidDataException();
 
             var length = (compressedBytes[1] | (compressedBytes[2] << 8) | (compressedBytes[3] << 16));

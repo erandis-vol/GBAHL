@@ -6,9 +6,11 @@ namespace GBAHL.IO.Compression
 {
     public static class LZSS
     {
+        public const byte Identifier = 0x10;
+
         public static byte[] Decompress(byte[] bytes)
         {
-            if (bytes[0] != 0x10)
+            if (bytes[0] != Identifier)
                 throw new InvalidDataException();
 
             var length = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
@@ -48,54 +50,55 @@ namespace GBAHL.IO.Compression
 
         // compression originally by link12552
 
-        public static byte[] Compress(byte[] Data)
+        public static byte[] Compress(byte[] bytes)
         {
-            byte[] header = BitConverter.GetBytes(Data.Length);
-            List<byte> Bytes = new List<byte>();
-            List<byte> PreBytes = new List<byte>();
-            byte Watch = 0;
-            byte ShortPosition = 2;
-            int ActualPosition = 2;
+            List<byte> compressed = new List<byte>();
+            List<byte> preCompressed = new List<byte>();
+            byte flags = 0;
+            byte shortPos = 2;
+            int actualPos = 2;
             int match = -1;
 
-            int BestLength = 0;
+            int bestLength = 0;
 
             // Adds the Lz77 header to the bytes 0x10 3 bytes size reversed
-            Bytes.Add(0x10);
-            Bytes.Add(header[0]);
-            Bytes.Add(header[1]);
-            Bytes.Add(header[2]);
+            compressed.Add(Identifier);
+            compressed.Add((byte)bytes.Length);
+            compressed.Add((byte)(bytes.Length >> 8));
+            compressed.Add((byte)(bytes.Length >> 16));
 
             // Lz77 Compression requires SOME starting data, so we provide the first 2 bytes
-            PreBytes.Add(Data[0]);
-            PreBytes.Add(Data[1]);
+            preCompressed.Add(bytes[0]);
+            preCompressed.Add(bytes[1]);
 
             // Compress everything
-            while (ActualPosition < Data.Length)
+            while (actualPos < bytes.Length)
             {
                 //If we've compressed 8 of 8 bytes
-                if (ShortPosition == 8)
+                if (shortPos == 8)
                 {
                     // Add the Watch Mask
                     // Add the 8 steps in PreBytes
-                    Bytes.Add(Watch);
-                    Bytes.AddRange(PreBytes);
+                    compressed.Add(flags);
+                    compressed.AddRange(preCompressed);
 
-                    Watch = 0;
-                    PreBytes.Clear();
+                    flags = 0;
+                    preCompressed.Clear();
 
                     // Back to 0 of 8 compressed bytes
-                    ShortPosition = 0;
+                    shortPos = 0;
                 }
                 else
                 {
                     // If we are approaching the end
-                    if (ActualPosition + 1 < Data.Length)
+                    if (actualPos + 1 < bytes.Length)
                     {
                         match = Search(
-                                    Data,
-                                    ActualPosition,
-                                    Math.Min(4096, ActualPosition), out BestLength);
+                            bytes,
+                            actualPos,
+                            Math.Min(4096, actualPos),
+                            out bestLength
+                        );
                     }
                     else
                     {
@@ -106,11 +109,12 @@ namespace GBAHL.IO.Compression
                     if (match == -1)
                     {
                         // Add the byte
-                        PreBytes.Add(Data[ActualPosition]);
+                        preCompressed.Add(bytes[actualPos]);
                         // Add a 0 to the mask
-                        Watch = BitConverter.GetBytes((int)Watch << 1)[0];
+                        //flags = BitConverter.GetBytes((int)flags << 1)[0];
+                        flags <<= 1;
 
-                        ActualPosition++;
+                        actualPos++;
                     }
                     else
                     {
@@ -118,85 +122,90 @@ namespace GBAHL.IO.Compression
                         int length = -1;
 
                         int start = match;
-                        if (BestLength == -1)
+                        if (bestLength == -1)
                         {
                             // Old look-up technique
                             start = match;
 
-                            bool Compatible = true;
-                            while (Compatible == true && length < 18 && length + ActualPosition < Data.Length - 1)
+                            bool isCompatible = true;
+                            while (isCompatible == true && length < 18 && length + actualPos < bytes.Length - 1)
                             {
                                 length++;
-                                if (Data[ActualPosition + length] != Data[ActualPosition - start + length])
+                                if (bytes[actualPos + length] != bytes[actualPos - start + length])
                                 {
-                                    Compatible = false;
+                                    isCompatible = false;
                                 }
                             }
                         }
                         else
                         {
                             // New lookup (Perfect Compression!)
-                            length = BestLength;
+                            length = bestLength;
                         }
 
                         // Add the rel-compression pointer (P) and length of bytes to copy (L)
                         // Format: L P P P
-                        byte[] b = BitConverter.GetBytes(((length - 3) << 12) + (start - 1));
-
-                        b = new byte[] { b[1], b[0] };
-                        PreBytes.AddRange(b);
+                        //byte[] b = BitConverter.GetBytes(((length - 3) << 12) + (start - 1));
+                        //b = new byte[] { b[1], b[0] };
+                        //preCompressed.AddRange(b);
+                        ushort ptr = (ushort)(((length - 3) << 12) + (start - 1));
+                        preCompressed.Add((byte)(ptr >> 8));
+                        preCompressed.Add((byte)ptr);
 
                         // Move to the next position
-                        ActualPosition += length;
+                        actualPos += length;
 
                         // Add a 1 to the bit Mask
-                        Watch = BitConverter.GetBytes((Watch << 1) + 1)[0];
+                        //flags = BitConverter.GetBytes((flags << 1) + 1)[0];
+                        flags <<= 1;
+                        flags |= 1;
                     }
 
                     // We've just compressed 1 more 8
-                    ShortPosition++;
+                    shortPos++;
                 }
             }
 
             // Finnish off the compression
-            if (ShortPosition != 0)
+            if (shortPos != 0)
             {
                 //Tyeing up any left-over data compression
-                Watch = BitConverter.GetBytes((int)Watch << (8 - ShortPosition))[0];
+                //flags = BitConverter.GetBytes((int)flags << (8 - shortPos))[0];
+                flags <<= (8 - shortPos);
 
-                Bytes.Add(Watch);
-                Bytes.AddRange(PreBytes);
+                compressed.Add(flags);
+                compressed.AddRange(preCompressed);
             }
 
             // Return the Compressed bytes as an array!
-            return Bytes.ToArray();
+            return compressed.ToArray();
         }
 
-        private static int Search(byte[] Data, int Index, int Length, out int match)
+        private static int Search(byte[] bytes, int index, int length, out int match)
         {
             int pos = 2;
             match = 0;
             int found = -1;
 
-            if (Index + 2 < Data.Length)
+            if (index + 2 < bytes.Length)
             {
-                while (pos < Length + 1 && match != 18)
+                while (pos < length + 1 && match != 18)
                 {
-                    if (Data[Index - pos] == Data[Index] && Data[Index - pos + 1] == Data[Index + 1])
+                    if (bytes[index - pos] == bytes[index] && bytes[index - pos + 1] == bytes[index + 1])
                     {
 
-                        if (Index > 2)
+                        if (index > 2)
                         {
-                            if (Data[Index - pos + 2] == Data[Index + 2])
+                            if (bytes[index - pos + 2] == bytes[index + 2])
                             {
                                 int _match = 2;
-                                bool Compatible = true;
-                                while (Compatible == true && _match < 18 && _match + Index < Data.Length - 1)
+                                bool isCompatible = true;
+                                while (isCompatible == true && _match < 18 && _match + index < bytes.Length - 1)
                                 {
                                     _match++;
-                                    if (Data[Index + _match] != Data[Index - pos + _match])
+                                    if (bytes[index + _match] != bytes[index - pos + _match])
                                     {
-                                        Compatible = false;
+                                        isCompatible = false;
                                     }
                                 }
                                 if (_match > match)
