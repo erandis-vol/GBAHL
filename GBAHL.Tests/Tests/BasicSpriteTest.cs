@@ -16,7 +16,7 @@ namespace GBAHL.Tests.Tests
 {
     public partial class BasicSpriteTest : UserControl
     {
-        private FastBitmap image;
+        private DirectBitmap image;
 
         public BasicSpriteTest()
         {

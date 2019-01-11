@@ -27,9 +27,9 @@ namespace GBAHL.Drawing
         /// Returns an array containing the pixels of all tiles.
         /// </summary>
         /// <returns></returns>
-        public Color2[] GetPixels()
+        public Bgr555[] GetPixels()
         {
-            var pixels = new Color2[Tileset.Length * 64];
+            var pixels = new Bgr555[Tileset.Length * 64];
 
             for (int i = 0; i < Tileset.Length; i++)
             {

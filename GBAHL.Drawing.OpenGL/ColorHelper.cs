@@ -6,11 +6,11 @@ namespace GBAHL.Drawing.OpenGL
     public static class ColorHelper
     {
         /// <summary>
-        /// Converts this <see cref="Color2"/> instance to the equivalent <see cref="Color4"/> instance.
+        /// Converts this <see cref="Bgr555"/> instance to the equivalent <see cref="Color4"/> instance.
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static Color4 ToColor4(this Color2 color)
+        public static Color4 ToColor4(this Bgr555 color)
         {
             return new Color4(
                 (byte)(color.R << 3),

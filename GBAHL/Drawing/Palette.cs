@@ -28,9 +28,9 @@ namespace GBAHL.Drawing
     /// <summary>
     /// Represents a collection of colors.
     /// </summary>
-    public class Palette : IEnumerable<Color2>
+    public class Palette : IEnumerable<Bgr555>
     {
-        private Color2[] colors;
+        private Bgr555[] colors;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Palette"/> class with the specified length.
@@ -38,22 +38,22 @@ namespace GBAHL.Drawing
         /// <param name="color">The color to repeat.</param>
         /// <param name="length">The number of colors.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is less than zero.</exception>
-        public Palette(Color2 color, int length)
+        public Palette(Bgr555 color, int length)
         {
             if (length < 0)
                 throw new ArgumentOutOfRangeException("length");
 
-            colors = new Color2[length];
+            colors = new Bgr555[length];
             for (int i = 0; i < length; i++)
                 colors[i] = color;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Palette"/> class from the specified <see cref="Color2"/> values.
+        /// Initializes a new instance of the <see cref="Palette"/> class from the specified <see cref="Bgr555"/> values.
         /// </summary>
         /// <param name="colors">A enumerator of color values.</param>
         /// <exception cref="ArgumentNullException"><paramref name="colors"/> is null.</exception>
-        public Palette(IEnumerable<Color2> colors)
+        public Palette(IEnumerable<Bgr555> colors)
         {
             if (colors == null)
                 throw new ArgumentNullException(nameof(colors));
@@ -155,9 +155,9 @@ namespace GBAHL.Drawing
 
                         var length = br.ReadInt32();
 
-                        colors = new Color2[length];
+                        colors = new Bgr555[length];
                         for (int i = 0; i < length; i++)
-                            colors[i] = new Color2(br.ReadUInt16());
+                            colors[i] = new Bgr555(br.ReadUInt16());
                     }
                     break;
 
@@ -173,7 +173,7 @@ namespace GBAHL.Drawing
                         if (!int.TryParse(sr.ReadLine(), out length))
                             throw new InvalidDataException("Invalid palette length.");
 
-                        colors = new Color2[length];
+                        colors = new Bgr555[length];
                         for (int i = 0; i < length; i++)
                         {
                             try
@@ -184,7 +184,7 @@ namespace GBAHL.Drawing
                                 var g = byte.Parse(color[1]);
                                 var b = byte.Parse(color[2]);
 
-                                colors[i] = Color2.FromArgb(r, g, b);
+                                colors[i] = Bgr555.FromArgb(r, g, b);
                             }
                             catch (Exception ex)
                             {
@@ -201,14 +201,14 @@ namespace GBAHL.Drawing
                         // http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577411_pgfId-1070626
                         try
                         {
-                            colors = new Color2[256];
+                            colors = new Bgr555[256];
                             for (int i = 0; i < 256; i++)
                             {
                                 var r = br.ReadByte();
                                 var g = br.ReadByte();
                                 var b = br.ReadByte();
 
-                                colors[i] = Color2.FromArgb(r, g, b);
+                                colors[i] = Bgr555.FromArgb(r, g, b);
                             }
                         }
                         catch (Exception ex)
@@ -228,7 +228,7 @@ namespace GBAHL.Drawing
         /// </summary>
         /// <param name="index">The color's index.</param>
         /// <returns>A color.</returns>
-        public Color2 this[int index]
+        public Bgr555 this[int index]
         {
             get => colors[index];
             set => colors[index] = value;
@@ -288,7 +288,7 @@ namespace GBAHL.Drawing
 
                         bw.Write(colors.Length);
                         foreach (var color in colors)
-                            bw.Write(color.ToBgr());
+                            bw.Write(color.ToUInt16());
                     }
                     break;
 
@@ -328,9 +328,9 @@ namespace GBAHL.Drawing
         /// Returns an enumerator that iterates through the <see cref="Palette"/>.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<Color2> GetEnumerator()
+        public IEnumerator<Bgr555> GetEnumerator()
         {
-            return ((IEnumerable<Color2>)colors).GetEnumerator();
+            return ((IEnumerable<Bgr555>)colors).GetEnumerator();
         }
 
         /// <summary>

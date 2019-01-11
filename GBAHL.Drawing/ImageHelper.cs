@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 
 namespace GBAHL.Drawing
 {
+    /// <summary>
+    /// Provides methods for dealing with images.
+    /// </summary>
     public static class ImageHelper
     {
         /// <summary>
@@ -23,7 +25,7 @@ namespace GBAHL.Drawing
             }
 
             // Create the palette, converting the colors
-            return new Palette(image.Palette.Entries.Select(x => x.ToColor2()));
+            return new Palette(image.Palette.Entries.Select(x => x.ToBgr555()));
         }
 
         /// <summary>

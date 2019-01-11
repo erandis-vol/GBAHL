@@ -12,7 +12,7 @@ namespace GBAHL.Drawing
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="sprite"/> is null.</exception>
-        public static FastBitmap Draw(Sprite sprite)
+        public static DirectBitmap Draw(Sprite sprite)
         {
             if (sprite == null)
                 throw new ArgumentNullException(nameof(sprite));
@@ -20,7 +20,7 @@ namespace GBAHL.Drawing
             if (sprite.Tileset.Length == 0)
                 throw new ArgumentException("Sprite is empty.");
 
-            var fb = new FastBitmap(sprite.Width << 3, sprite.Height << 3);
+            var db = new DirectBitmap(sprite.Width << 3, sprite.Height << 3);
 
             var tileset = sprite.Tileset;
             var palette = sprite.Palette;
@@ -40,7 +40,7 @@ namespace GBAHL.Drawing
                 {
                     for (int k = 0; k < 8; k++)
                     {
-                        fb.SetPixel(x * 8 + k, y * 8 + j, palette[tile[k, j]].ToColor());
+                        db.SetPixel(x * 8 + k, y * 8 + j, palette[tile[k, j]].ToColor());
                     }
                 }
             }
@@ -50,7 +50,7 @@ namespace GBAHL.Drawing
                 // TODO
             }
 
-            return fb;
+            return db;
         }
     }
 }

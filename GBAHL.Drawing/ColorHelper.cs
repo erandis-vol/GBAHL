@@ -9,23 +9,23 @@ namespace GBAHL.Drawing
     public static class ColorHelper
     {
         /// <summary>
-        /// Converts this <see cref="Color2"/> instance to the equivalent <see cref="Color"/> instance.
+        /// Converts this <see cref="Bgr555"/> instance to the equivalent <see cref="Color"/> instance.
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static Color ToColor(this Color2 color)
+        public static Color ToColor(this Bgr555 color)
         {
             return Color.FromArgb(color.R << 3, color.G << 3, color.B << 3);
         }
 
         /// <summary>
-        /// Converts this <see cref="Color"/> instance to the equivalent <see cref="Color2"/> instance.
+        /// Converts this <see cref="Color"/> instance to the equivalent <see cref="Bgr555"/> instance.
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static Color2 ToColor2(this Color color)
+        public static Bgr555 ToBgr555(this Color color)
         {
-            return Color2.FromArgb(color.R, color.G, color.B);
+            return Bgr555.FromArgb(color.R, color.G, color.B);
         }
     }
 }

@@ -76,7 +76,7 @@ namespace GBAHL.Drawing.OpenGL
             );
         }
 
-        public void SetData(Color2[] data)
+        public void SetData(Bgr555[] data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));

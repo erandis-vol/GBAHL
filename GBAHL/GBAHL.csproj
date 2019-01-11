@@ -49,9 +49,9 @@
     <Compile Include="Asm\AssemblyLineType.cs" />
     <Compile Include="Asm\AssemblyWriter.cs" />
     <Compile Include="Drawing\BitDepth.cs" />
-    <Compile Include="Drawing\Color2.cs" />
+    <Compile Include="Drawing\Bgr555.cs" />
     <Compile Include="Drawing\Color2.KnownColors.cs">
-      <DependentUpon>Color2.cs</DependentUpon>
+      <DependentUpon>Bgr555.cs</DependentUpon>
     </Compile>
     <Compile Include="Drawing\Palette.cs" />
     <Compile Include="Drawing\Sprite.cs" />

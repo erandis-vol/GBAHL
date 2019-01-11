@@ -226,9 +226,9 @@ namespace GBAHL.IO
         /// Reads a 2-byte BGR555 color from the stream and advances the position by two bytes.
         /// </summary>
         /// <returns>A <see cref="Color"/> read from the stream.</returns>
-        public Color2 ReadColor()
+        public Bgr555 ReadColor()
         {
-            return new Color2(ReadUInt16());
+            return new Bgr555(ReadUInt16());
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace GBAHL.IO
         /// <exception cref="ArgumentOutOfRangeException">colors was not 16 or 256.</exception>
         public Palette ReadPalette(int colors = 16)
         {
-            var pal = new Palette(Color2.Black, colors);
+            var pal = new Palette(Bgr555.Black, colors);
             for (int i = 0; i < colors; i++)
                 pal[i] = ReadColor();
             return pal;
@@ -254,10 +254,10 @@ namespace GBAHL.IO
         {
             var buffer = ReadCompressedBytes();
 
-            var palette = new Palette(Color2.Black, buffer.Length / 2);
+            var palette = new Palette(Bgr555.Black, buffer.Length / 2);
             for (int i = 0; i < palette.Length; i++)
             {
-                palette[i] = new Color2((ushort)((buffer[i * 2 + 1] << 8) | buffer[i * 2]));
+                palette[i] = new Bgr555((ushort)((buffer[i * 2 + 1] << 8) | buffer[i * 2]));
             }
 
             return palette;
@@ -336,9 +336,9 @@ namespace GBAHL.IO
                 WriteText(str, entryLength, encoding);
         }
 
-        public void WriteColor(Color2 color)
+        public void WriteColor(Bgr555 color)
         {
-            WriteUInt16(color.ToBgr());
+            WriteUInt16(color.ToUInt16());
         }
 
         public void WritePalette(Palette palette)
@@ -357,7 +357,7 @@ namespace GBAHL.IO
             // Copy colors to buffer
             for (int i = 0; i < palette.Length; i++)
             {
-                var bgr = palette[i].ToBgr();
+                var bgr = palette[i].ToUInt16();
 
                 buffer[i * 2] = (byte)bgr;
                 buffer[i * 2 + 1] = (byte)(bgr >> 8);
