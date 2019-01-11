@@ -5,7 +5,7 @@ namespace GBAHL.Drawing
     /// <summary>
     /// Represents a 15-bit BGR555 color.
     /// </summary>
-    public partial struct Bgr555 : IEquatable<Bgr555>
+    public struct Bgr555 : IEquatable<Bgr555>
     {
         private const byte MaxComponentValue = (1 << 5) - 1;
 
@@ -52,7 +52,7 @@ namespace GBAHL.Drawing
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
         /// <returns></returns>
-        public static Bgr555 FromArgb(int r, int g, int b)
+        public static Bgr555 FromRgb(int r, int g, int b)
         {
             return new Bgr555(
                 (byte)(r >> 3),
@@ -156,5 +156,15 @@ namespace GBAHL.Drawing
         /// Gets the blue component.
         /// </summary>
         public byte B { get; }
+
+        /// <summary>
+        /// Gets a color that has a BGR value of #0000.
+        /// </summary>
+        public static Bgr555 Black => new Bgr555(0x00, 0x00, 0x00);
+
+        /// <summary>
+        /// Gets a color that has a BGR value of #FF7F.
+        /// </summary>
+        public static Bgr555 White => new Bgr555(0x1F, 0x1F, 0x1F);
     }
 }

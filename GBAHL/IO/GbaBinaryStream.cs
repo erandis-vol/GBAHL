@@ -226,10 +226,7 @@ namespace GBAHL.IO
         /// Reads a 2-byte BGR555 color from the stream and advances the position by two bytes.
         /// </summary>
         /// <returns>A <see cref="Color"/> read from the stream.</returns>
-        public Bgr555 ReadColor()
-        {
-            return new Bgr555(ReadUInt16());
-        }
+        public Bgr555 ReadColor() => ReadUInt16();
 
         /// <summary>
         /// Reads the specified number of BGR555 colors from the stream and advances the position by twice that many bytes.
@@ -239,10 +236,12 @@ namespace GBAHL.IO
         /// <exception cref="ArgumentOutOfRangeException">colors was not 16 or 256.</exception>
         public Palette ReadPalette(int colors = 16)
         {
-            var pal = new Palette(Bgr555.Black, colors);
+            Palette palette = new Palette(Bgr555.Black, colors);
             for (int i = 0; i < colors; i++)
-                pal[i] = ReadColor();
-            return pal;
+            {
+                palette[i] = ReadColor();
+            }
+            return palette;
         }
 
         /// <summary>

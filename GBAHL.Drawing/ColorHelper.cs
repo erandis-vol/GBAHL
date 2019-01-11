@@ -25,7 +25,7 @@ namespace GBAHL.Drawing
         /// <returns></returns>
         public static Bgr555 ToBgr555(this Color color)
         {
-            return Bgr555.FromArgb(color.R, color.G, color.B);
+            return Bgr555.FromRgb(color.R, color.G, color.B);
         }
     }
 }

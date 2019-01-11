@@ -184,7 +184,7 @@ namespace GBAHL.Drawing
                                 var g = byte.Parse(color[1]);
                                 var b = byte.Parse(color[2]);
 
-                                colors[i] = Bgr555.FromArgb(r, g, b);
+                                colors[i] = Bgr555.FromRgb(r, g, b);
                             }
                             catch (Exception ex)
                             {
@@ -208,7 +208,7 @@ namespace GBAHL.Drawing
                                 var g = br.ReadByte();
                                 var b = br.ReadByte();
 
-                                colors[i] = Bgr555.FromArgb(r, g, b);
+                                colors[i] = Bgr555.FromRgb(r, g, b);
                             }
                         }
                         catch (Exception ex)
