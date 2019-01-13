@@ -7,6 +7,16 @@ namespace GBAHL.Text
     /// </summary>
     public class Table
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Table"/> class.
+        /// </summary>
+        /// <param name="characters">The character table.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="characters"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="characters"/> does not have a length of 256.
+        /// </exception>
         public Table(string[] characters)
         {
             if (characters == null)
@@ -18,10 +28,18 @@ namespace GBAHL.Text
             Characters = characters ?? throw new ArgumentNullException("characters");
         }
 
-        #region Methods
-
+        /// <summary>
+        /// Decodes the specified value.
+        /// </summary>
+        /// <param name="value">The value to be decoded.</param>
+        /// <returns>A string representing the decoded character.</returns>
         public string GetCharacter(byte value) => Characters[value] ?? string.Empty;
 
+        /// <summary>
+        /// Encodes the specified character.
+        /// </summary>
+        /// <param name="character">The character to be encoded.</param>
+        /// <returns>The value of the character if found in the table; otherwise, -1.</returns>
         public int GetByte(string character)
         {
             for (int i = 0; i < Characters.Length; i++)
@@ -35,11 +53,9 @@ namespace GBAHL.Text
             return -1;
         }
 
-        #endregion
-
-        // TODO: Investigate the best way to represent multiple-byte constants.
-        //       Maybe as an integer? Note that constants are never more than 4 bytes.
-
+        /// <summary>
+        /// Gets the character table.
+        /// </summary>
         public string[] Characters { get; }
     }
 }
