@@ -9,6 +9,7 @@ namespace GBAHL.IO
     /// <summary>
     /// Reads and writes primitive data types to/from a GBA ROM.
     /// </summary>
+    [Obsolete("Use GbaBinaryReader and GbaBinaryWriter instead.")]
     public class GbaBinaryStream : BinaryStream
     {
         private const int CompressionLZSS = 0x10;

@@ -8,6 +8,7 @@ namespace GBAHL.IO
     /// <summary>
     /// Reads and writes primitive data types to/from a <see cref="Stream"/>.
     /// </summary>
+    [Obsolete]
     public class BinaryStream : IDisposable
     {
         protected const int BufferSize = 8; // tune as needed, 8 is all we need for 64-bit integers
