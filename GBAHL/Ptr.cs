@@ -120,6 +120,21 @@ namespace GBAHL
         }
 
         /// <summary>
+        /// Gets or sets the address of this <see cref="Ptr"/>.
+        /// </summary>
+        public int Address
+        {
+            get => _address;
+            set
+            {
+                if (_address != value)
+                {
+                    _address = value;
+                }
+            }
+        }
+
+        /// <summary>
         /// Determines whether this <see cref="Ptr"/> is valid.
         /// </summary>
         public bool IsValid => _address >= 0 && _address <= MaximumRomSize;
