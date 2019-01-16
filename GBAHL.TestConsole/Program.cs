@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace GBAHL.TestConsole
 {
@@ -10,17 +11,10 @@ namespace GBAHL.TestConsole
     {
         static void Main(string[] args)
         {
-            TestAssemblyWriter();
+            TestPointer();
 
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey(true);
-        }
-
-        public class TestConfigurationData
-        {
-            public Dictionary<string, int> Offsets { get; set; }
-
-            public int Version { get; set; }
         }
 
         static void TestAssemblyWriter()
@@ -39,6 +33,21 @@ namespace GBAHL.TestConsole
 
                 Console.WriteLine(aw);
             }
+        }
+
+        static void TestPointer()
+        {
+            Ptr address1 = 0x0123456;
+            Ptr address2 = 0x2ABCDEF;
+            Ptr address3 = Ptr.Invalid;
+            Ptr address4 = Ptr.Zero;
+
+            Console.WriteLine(Marshal.SizeOf<Ptr>()); // 4
+
+            Console.WriteLine("{0:X2}", address1.Bank); // 08
+            Console.WriteLine("{0:X2}", address2.Bank); // 0A
+            Console.WriteLine("{0:X2}", address3.Bank); // 00
+            Console.WriteLine("{0:X2}", address4.Bank); // 08
         }
     }
 }
