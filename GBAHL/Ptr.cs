@@ -36,7 +36,14 @@ namespace GBAHL
         /// <param name="address">The address.</param>
         public Ptr(int address)
         {
-            _address = address;
+            if (address >= 0)
+            {
+                _address = address;
+            }
+            else
+            {
+                _address = -1;
+            }
         }
 
         /// <summary>
@@ -44,7 +51,7 @@ namespace GBAHL
         /// </summary>
         /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Ptr(int value)
+        public static explicit operator Ptr(int value)
         {
             return Unsafe.As<int, Ptr>(ref value);
         }
@@ -54,7 +61,7 @@ namespace GBAHL
         /// </summary>
         /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator int(Ptr value)
+        public static explicit operator int(Ptr value)
         {
             return Unsafe.As<Ptr, int>(ref value);
         }
@@ -143,6 +150,11 @@ namespace GBAHL
                 }
             }
         }
+
+        /// <summary>
+        /// Determines whether this <see cref="Ptr"/> is zero.
+        /// </summary>
+        public bool IsZero => _address == 0;
 
         /// <summary>
         /// Determines whether this <see cref="Ptr"/> is valid.

@@ -64,6 +64,8 @@
     <Compile Include="IO\BinaryStream.cs" />
     <Compile Include="Ptr.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RomReader.cs" />
+    <Compile Include="RomWriter.cs" />
     <Compile Include="Text\Encoding.cs" />
     <Compile Include="Text\Pokemon\EmeraldEncoding.cs" />
     <Compile Include="Text\Pokemon\FireRedEncoding.cs" />

@@ -37,8 +37,8 @@ namespace GBAHL.TestConsole
 
         static void TestPointer()
         {
-            Ptr ptr1 = 0x0123456;
-            Ptr ptr2 = 0x2ABCDEF;
+            Ptr ptr1 = (Ptr)0x0123456;
+            Ptr ptr2 = (Ptr)0x2ABCDEF;
             Ptr ptr3 = Ptr.Invalid;
             Ptr ptr4 = Ptr.Zero;
 
