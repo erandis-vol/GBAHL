@@ -60,9 +60,10 @@
     <Compile Include="Compression\LZSS.cs" />
     <Compile Include="Compression\RLE.cs" />
     <Compile Include="GbaFileInfo.cs" />
+    <Compile Include="GbPtr.cs" />
     <Compile Include="IO\GbaBinaryStream.cs" />
     <Compile Include="IO\BinaryStream.cs" />
-    <Compile Include="Ptr.cs" />
+    <Compile Include="GbaPtr.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Text\Encoding.cs" />
     <Compile Include="Text\Pokemon\EmeraldEncoding.cs" />

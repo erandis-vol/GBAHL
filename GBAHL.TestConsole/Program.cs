@@ -37,17 +37,26 @@ namespace GBAHL.TestConsole
 
         static void TestPointer()
         {
-            GbaPtr address1 = 0x0123456;
-            GbaPtr address2 = 0x2ABCDEF;
-            GbaPtr address3 = GbaPtr.Invalid;
-            GbaPtr address4 = GbaPtr.Zero;
+            GbPtr gbAddress1 = 0x5132;
+            GbPtr gbAddress2 = 0x109DCA;
+            GbPtr gbAddress3 = GbPtr.Zero;
+
+            Console.WriteLine(Marshal.SizeOf<GbPtr>()); // 3
+            Console.WriteLine("{0:X2} {1}", gbAddress1.Bank, gbAddress1.ToString("X6")); // 01 005132
+            Console.WriteLine("{0:X2} {1}", gbAddress2.Bank, gbAddress2.ToString("X6")); // 42 109DCA
+            Console.WriteLine("{0:X2} {1}", gbAddress3.Bank, gbAddress3.ToString("X6")); // 00 000000
+
+            GbaPtr gbaAddress1 = 0x0123456;
+            GbaPtr gbaAddress2 = 0x2ABCDEF;
+            GbaPtr gbaAddress3 = GbaPtr.Invalid;
+            GbaPtr gbaAddress4 = GbaPtr.Zero;
 
             Console.WriteLine(Marshal.SizeOf<GbaPtr>()); // 4
 
-            Console.WriteLine("{0:X2}", address1.Bank); // 08
-            Console.WriteLine("{0:X2}", address2.Bank); // 0A
-            Console.WriteLine("{0:X2}", address3.Bank); // 00
-            Console.WriteLine("{0:X2}", address4.Bank); // 08
+            Console.WriteLine("{0:X2} {1}", gbaAddress1.Bank, gbaAddress1.ToString("X8")); // 08 00123456
+            Console.WriteLine("{0:X2} {1}", gbaAddress2.Bank, gbaAddress2.ToString("X8")); // 0A 02ABCDEF
+            Console.WriteLine("{0:X2} {1}", gbaAddress3.Bank, gbaAddress3.ToString("X8")); // 00 FFFFFFFF
+            Console.WriteLine("{0:X2} {1}", gbaAddress4.Bank, gbaAddress4.ToString("X8")); // 08 00000000
         }
     }
 }
