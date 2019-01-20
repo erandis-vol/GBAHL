@@ -1,6 +1,8 @@
-﻿using System;
+﻿using GBAHL.Drawing;
+using GBAHL.Text;
+using System;
+using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace GBAHL
 {
@@ -9,7 +11,7 @@ namespace GBAHL
     /// </summary>
     public class RomWriter : IDisposable
     {
-        protected const int BufferSize = 8; // tune as needed, 8 is all we need for 64-bit integers
+        protected const int BufferSize = 8;
 
         private Stream _stream;
         private byte[] _buffer = new byte[BufferSize];
@@ -51,19 +53,41 @@ namespace GBAHL
 
         ~RomWriter()
         {
-            Dispose();
+            Dispose(false);
         }
 
+        #region Methods
+
         /// <summary>
-        /// Releases all resources used by the current instance of the <see cref="BinaryStream"/> class.
+        /// Releases all resources used by the current instance of the <see cref="RomWriter"/> class.
         /// </summary>
         public void Dispose()
         {
-            if (_isDisposed) return;
-            _isDisposed = true;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            _stream.Dispose();
-            _buffer = null;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (!_leaveOpen)
+                {
+                    _stream?.Dispose();
+                    _stream = null;
+                }
+
+                _isDisposed = true;
+            }
+        }
+
+        [DebuggerNonUserCode]
+        protected void AssertNotDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(RomWriter));
+            }
         }
 
         /// <summary>
@@ -79,10 +103,7 @@ namespace GBAHL
         /// Sets the position of the stream.
         /// </summary>
         /// <param name="offset">A byte offset relative to 0.</param>
-        public int Seek(int offset)
-        {
-            return (int)_stream.Seek(offset, SeekOrigin.Begin);
-        }
+        public int Seek(int offset) => Seek(offset, SeekOrigin.Begin);
 
         /// <summary>
         /// Sets the position of the stream.
@@ -95,6 +116,29 @@ namespace GBAHL
         }
 
         /// <summary>
+        /// Sets the position of the stream.
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public int Seek(Ptr offset) => Seek(offset, SeekOrigin.Begin);
+
+        /// <summary>
+        /// Sets the position of the stream.
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        public int Seek(Ptr offset, SeekOrigin origin)
+        {
+            if (offset.IsValid)
+            {
+                return (int)_stream.Seek(offset.Address, origin);
+            }
+
+            return (int)_stream.Position;
+        }
+
+        /// <summary>
         /// Moves the position of the stream by the specified number of bytes.
         /// </summary>
         /// <param name="bytes">The number of bytes to move; sign determines direction.</param>
@@ -102,8 +146,6 @@ namespace GBAHL
         {
             return (int)_stream.Seek(bytes, SeekOrigin.Current);
         }
-
-        #region Write
 
         /// <summary>
         /// Writes a byte to the stream and advances the position by one byte.
@@ -207,8 +249,159 @@ namespace GBAHL
         /// <param name="str">The <see cref="string"/> value to write.</param>
         public void WriteString(string str)
         {
-            // utf8 encoded string
-            WriteBytes(Encoding.UTF8.GetBytes(str));
+            // TODO: We can avoid allocation here.
+            WriteBytes(System.Text.Encoding.UTF8.GetBytes(str));
+        }
+
+        /// <summary>
+        /// Writes a 4-byte pointer to the stream and advances the position by four bytes.
+        /// </summary>
+        /// <param name="value">The <see cref="Ptr"/> value to write.</param>
+        /// <exception cref="ArgumentException"><paramref name="value"/> is invalid.</exception>
+        public void WritePtr(Ptr value)
+        {
+            if (value.IsZero)
+            {
+                WriteInt32(0);
+            }
+            else if (value.IsValid)
+            {
+                WriteInt32((value.Bank << 24) | value.Address);
+            }
+            else
+            {
+                throw new ArgumentException("Cannot write an invalid pointer.", nameof(value));
+            }
+        }
+
+        /// <summary>
+        /// Compresses and writes an array of bytes to the stream and advances the position.
+        /// </summary>
+        /// <param name="buffer">The <see cref="byte"/> array to compress.</param>
+        public void WriteCompressedBytes(byte[] buffer)
+        {
+            // TODO: Allow choice of compression method
+            var compressed = Compression.LZSS.Compress(buffer);
+            WriteBytes(compressed);
+        }
+
+        public void WriteText(string str, Encoding encoding)
+        {
+            WriteBytes(encoding.Encode(str));
+        }
+
+        public void WriteText(string str, int length, Encoding encoding)
+        {
+            // convert string
+            byte[] buffer = encoding.Encode(str);
+
+            // ensure proper length
+            if (buffer.Length != length)
+                Array.Resize(ref buffer, length);
+            buffer[length - 1] = 0xFF;
+
+            WriteBytes(buffer);
+        }
+
+        public void WriteTextTable(string[] table, int entryLength, Encoding encoding)
+        {
+            foreach (var str in table)
+                WriteText(str, entryLength, encoding);
+        }
+
+        public void WriteColor(Bgr555 color)
+        {
+            WriteUInt16(color.ToUInt16());
+        }
+
+        public void WritePalette(Palette palette)
+        {
+            foreach (var color in palette)
+            {
+                WriteColor(color);
+            }
+        }
+
+        public void WriteCompressedPalette(Palette palette)
+        {
+            // Buffer to hold uncompressed color data
+            byte[] buffer = new byte[palette.Length * 2];
+
+            // Copy colors to buffer
+            for (int i = 0; i < palette.Length; i++)
+            {
+                var bgr = palette[i].ToUInt16();
+
+                buffer[i * 2] = (byte)bgr;
+                buffer[i * 2 + 1] = (byte)(bgr >> 8);
+            }
+
+            // Write compressed bytes
+            WriteCompressedBytes(buffer);
+        }
+
+        public void WriteTiles4(Tileset tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode4(tiles));
+        }
+
+        public void WriteTiles4(Tile[] tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode4(tiles));
+        }
+
+        public void WriteTiles8(Tileset tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode8(tiles));
+        }
+
+        public void WriteTiles8(Tile[] tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteBytes(BitDepth.Encode8(tiles));
+        }
+
+        public void WriteCompressedTiles4(Tileset tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode4(tiles));
+        }
+
+        public void WriteCompressedTiles4(Tile[] tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode4(tiles));
+        }
+
+        public void WriteCompressedTiles8(Tileset tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode8(tiles));
+        }
+
+        public void WriteCompressedTiles8(Tile[] tiles)
+        {
+            if (tiles == null)
+                throw new ArgumentNullException(nameof(tiles));
+
+            WriteCompressedBytes(BitDepth.Encode8(tiles));
         }
 
         #endregion
@@ -218,14 +411,14 @@ namespace GBAHL
         /// <summary>
         /// Gets the length of the stream.
         /// </summary>
-        public long Length => _stream.Length;
+        public int Length => (int)_stream.Length;
 
         /// <summary>
         /// Gets or sets the position of the stream.
         /// </summary>
-        public long Position
+        public int Position
         {
-            get => _stream.Position;
+            get => (int)_stream.Position;
             set => _stream.Position = value;
         }
 
