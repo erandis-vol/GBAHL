@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace GBAHL.IO.Compression
+namespace GBAHL.Compression
 {
     public static class LZSS
     {
