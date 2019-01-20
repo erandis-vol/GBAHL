@@ -59,6 +59,7 @@
     <Compile Include="Drawing\Tileset.cs" />
     <Compile Include="Compression\LZSS.cs" />
     <Compile Include="Compression\RLE.cs" />
+    <Compile Include="GbaFileInfo.cs" />
     <Compile Include="IO\GbaBinaryStream.cs" />
     <Compile Include="IO\BinaryStream.cs" />
     <Compile Include="Ptr.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Text\Pokemon\RubyEncoding.cs" />
     <Compile Include="Text\TableEncoding.cs" />
     <Compile Include="Text\Table.cs" />
+    <Compile Include="Utils\StringHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -60,6 +60,12 @@
     <Compile Include="Tests\BasicSpriteTest.Designer.cs">
       <DependentUpon>BasicSpriteTest.cs</DependentUpon>
     </Compile>
+    <Compile Include="Tests\GbaFileInfoTest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Tests\GbaFileInfoTest.Designer.cs">
+      <DependentUpon>GbaFileInfoTest.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -75,6 +81,9 @@
     </Compile>
     <EmbeddedResource Include="Tests\BasicSpriteTest.resx">
       <DependentUpon>BasicSpriteTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tests\GbaFileInfoTest.resx">
+      <DependentUpon>GbaFileInfoTest.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

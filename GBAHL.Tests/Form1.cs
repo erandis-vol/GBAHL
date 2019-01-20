@@ -23,6 +23,12 @@ namespace GBAHL.Tests
         {
             treeViewTests.Nodes.Clear();
 
+            var commonNode = new TreeNode("Common");
+            commonNode.Nodes.Add(new TreeNode {
+                Text = "GbaFileInfo",
+                Tag = new GbaFileInfoTest()
+            });
+
             var spriteNode = new TreeNode("Sprites");
             spriteNode.Nodes.Add(new TreeNode {
                 Text = "Basic",
@@ -31,6 +37,7 @@ namespace GBAHL.Tests
 
             var paletteNode = new TreeNode("Palettes");
 
+            treeViewTests.Nodes.Add(commonNode);
             treeViewTests.Nodes.Add(spriteNode);
             treeViewTests.Nodes.Add(paletteNode);
 
