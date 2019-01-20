@@ -1,15 +1,24 @@
-﻿using System;
+﻿using GBAHL.Drawing;
+using GBAHL.Text;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace GBAHL
 {
+    using StringBuilder = System.Text.StringBuilder;
+
     /// <summary>
     /// Reads primitive data types from a stream.
     /// </summary>
     public class RomReader : IDisposable
     {
         private const int BufferSize = 8;
+
+        private const int CompressionLZSS    = 0x10;
+        private const int CompressionHuffman = 0x20;
+        private const int CompressionRLE     = 0x30;
 
         private Stream _stream;
         private byte[] _buffer;
@@ -23,9 +32,7 @@ namespace GBAHL
         /// <exception cref="FileNotFoundException"></exception>
         public RomReader(RomFileInfo file)
             : this(file.OpenRead(), false)
-        {
-
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RomReader"/> class based on the specified stream.
@@ -53,19 +60,41 @@ namespace GBAHL
 
         ~RomReader()
         {
-            Dispose();
+            Dispose(false);
         }
 
+        #region Methods
+
         /// <summary>
-        /// Releases all resources used by the current instance of the <see cref="BinaryStream"/> class.
+        /// Releases all resources used by the current instance of the <see cref="RomReader"/> class.
         /// </summary>
         public void Dispose()
         {
-            if (_isDisposed) return;
-            _isDisposed = true;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            _stream.Dispose();
-            _buffer = null;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (!_leaveOpen)
+                {
+                    _stream?.Dispose();
+                    _stream = null;
+                }
+
+                _isDisposed = true;
+            }
+        }
+
+        [DebuggerNonUserCode]
+        protected void AssertNotDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(RomReader));
+            }
         }
 
         /// <summary>
@@ -81,10 +110,7 @@ namespace GBAHL
         /// Sets the position of the stream.
         /// </summary>
         /// <param name="offset">A byte offset relative to 0.</param>
-        public int Seek(int offset)
-        {
-            return (int)_stream.Seek(offset, SeekOrigin.Begin);
-        }
+        public int Seek(int offset) => Seek(offset, SeekOrigin.Begin);
 
         /// <summary>
         /// Sets the position of the stream.
@@ -94,6 +120,29 @@ namespace GBAHL
         public int Seek(int offset, SeekOrigin origin)
         {
             return (int)_stream.Seek(offset, origin);
+        }
+
+        /// <summary>
+        /// Sets the position of the stream.
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public int Seek(Ptr offset) => Seek(offset, SeekOrigin.Begin);
+
+        /// <summary>
+        /// Sets the position of the stream.
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        public int Seek(Ptr offset, SeekOrigin origin)
+        {
+            if (offset.IsValid)
+            {
+                return (int)_stream.Seek(offset.Address, origin);
+            }
+
+            return (int)_stream.Position;
         }
 
         /// <summary>
@@ -132,8 +181,6 @@ namespace GBAHL
                 } while (bytesRead < bytes);
             }
         }
-
-        #region Read
 
         /// <summary>
         /// Reads the next byte from the stream and advances the position by one byte.
@@ -181,6 +228,16 @@ namespace GBAHL
         {
             FillBuffer(2);
             return (ushort)(_buffer[0] | (_buffer[1] << 8));
+        }
+
+        /// <summary>
+        /// Reads a 3-byte unsigned integer from the stream and advances the position by three bytes.
+        /// </summary>
+        /// <returns></returns>
+        public int ReadUInt24()
+        {
+            FillBuffer(3);
+            return _buffer[0] | (_buffer[1] << 8) | (_buffer[2] << 16);
         }
 
         /// <summary>
@@ -247,84 +304,265 @@ namespace GBAHL
         /// </summary>
         /// <param name="length"></param>
         /// <returns></returns>
-        public string ReadString(int length)
+        public string ReadString(int length, bool breakOnNull = true)
         {
-            //return Encoding.UTF8.GetString(ReadBytes(length));
-            var buffer = ReadBytes(length);
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
-            foreach (var b in buffer)
+            byte[] bytes = ReadBytes(length);
+            foreach (var b in bytes)
             {
-                if (b == 0)
+                if (b != 0)
+                {
+                    sb.Append((char)b);
+                }
+                else if (breakOnNull)
+                {
                     break;
-
-                sb.Append((char)b);
+                }
             }
 
             return sb.ToString();
         }
 
-
-
         /// <summary>
-        /// Reads a 3-byte unsigned integer from the stream and advances the position by three bytes.
+        /// Reads a 4-byte pointer from the stream and advances the position by four bytes.
         /// </summary>
         /// <returns></returns>
-        protected int ReadInt24()
+        public Ptr ReadPtr()
         {
-            FillBuffer(3);
-            return _buffer[0] | (_buffer[1] << 8) | (_buffer[2] << 16);
+            const int RomBankStart = 0x08000000;
+            const int RomBankEnd   = 0x0AFFFFFF;
+
+            int value = ReadInt32();
+            if (value == 0)
+            {
+                return Ptr.Zero;
+            }
+            else if (value < RomBankStart || value > RomBankEnd)
+            {
+                return Ptr.Invalid;
+            }
+            else
+            {
+                return (Ptr)(value - RomBankStart);
+            }
         }
 
-        #endregion
-
-        #region Search
-
-        // these search methds are bad
-        /*
-        public int FindFreeSpace(int length, byte freespace = 0xFF, int startOffset = 0, int alignment = 1)
+        /// <summary>
+        /// If possible, reads compressed data from the stream into a byte array and advances the position.
+        /// </summary>
+        /// <returns>The decompressed bytes.</returns>
+        /// <exception cref="InvalidDataException">the data uses an unsupported compression format or is not compressed.</exception>
+        public byte[] ReadCompressedBytes()
         {
-            if (alignment <= 0)
-                throw new ArgumentOutOfRangeException("alignment");
-
-            if (startOffset < 0 || startOffset > stream.Length)
-                throw new ArgumentOutOfRangeException("startOffset");
-
-            // preserve stream position
-            var pos = stream.Position;
-
-            // adjust start offset for alignment
-            if (alignment > 1 && startOffset % alignment != 0)
-                startOffset += alignment - (startOffset % alignment);
-
-            // search ROM for freespace
-            int match = -1;
-            for (int i = startOffset; i < stream.Length - length; i++)
+            var compressionType = ReadByte();
+            if (compressionType == CompressionLZSS)
             {
-                stream.Seek(i, SeekOrigin.Begin);
-                match = i;
+                var length = ReadUInt24();
+                var result = new byte[length];
 
-                // check for length bytes of freespace
-                for (int j = 0; j < length; j++)
+                //var i = 4;
+                var j = 0;
+
+                while (j < length)
                 {
-                    if (stream.ReadByte() != freespace)
+                    var flags = ReadByte();
+
+                    for (int k = 7; k >= 0 && j < length; k--)
                     {
-                        match = -1;
-                        break;
+                        var isCompressed = ((flags >> k) & 1) == 1;
+                        if (isCompressed)
+                        {
+                            var data = (ReadByte() << 8) | ReadByte();
+
+                            var n = (data >> 12) + 3;
+                            var disp = j - (data & 0xFFF) - 1;
+
+                            while (n-- > 0 && j < length)
+                            {
+                                result[j++] = result[disp++];
+                            }
+                        }
+                        else
+                        {
+                            result[j++] = ReadByte();
+                        }
                     }
                 }
 
-                if (match != -1)
-                    break;
+                return result;
+            }
+            else
+            {
+                throw new InvalidDataException($"Unsupported compression type {compressionType:x2}.");
+            }
+        }
+
+        /// <summary>
+        /// If possible, reads compressed data and returns the number of bytes it occupies in the ROM.
+        /// </summary>
+        /// <returns>The number of bytes the compressed data, or -1 if there is an error.</returns>
+        public int ReadCompressedSize()
+        {
+            var start = Position;
+
+            var compressionType = ReadByte();
+            if (compressionType == CompressionLZSS)
+            {
+                // get decompressed length
+                int length = ReadUInt24();
+
+                // try to decompress the data
+                int size = 0, pos = 0, flags = 0;
+                while (size < length)
+                {
+                    if (Position >= BufferSize)
+                        return -1;
+
+                    if (pos == 0)
+                        flags = ReadByte();
+
+                    if ((flags & (0x80 >> pos)) == 0)
+                    {
+                        size++;
+                        Skip(1);
+                    }
+                    else
+                    {
+                        int block = (ReadByte() << 8) | ReadByte();
+
+                        int bytes = (block >> 12) + 3;
+                        int disp = size - (block & 0xFFF) - 1;
+
+                        while (bytes-- > 0 && size < length)
+                        {
+                            if (disp < 0 || disp >= length)
+                                return -1;
+
+                            size++;
+                            disp++;
+                        }
+                    }
+
+                    pos = ++pos % 8;
+                }
+
+                return Position - start;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Reads an FF-terminated string using the given <see cref="Encoding"/> and advances the position.
+        /// </summary>
+        /// <param name="encoding">The encoding of the string.</param>
+        /// <returns></returns>
+        public string ReadText(Encoding encoding)
+        {
+            // read string until FF
+            List<byte> buffer = new List<byte>();
+            byte temp = 0;
+            do
+            {
+                buffer.Add((temp = ReadByte()));
+            } while (temp != 0xFF);
+
+            // convert to string
+            return encoding.Decode(buffer.ToArray());
+        }
+
+        /// <summary>
+        /// Reads a string of the given length using the given <see cref="Table.Encoding"/> and advances the position by that many bytes.
+        /// </summary>
+        /// <param name="length">The length of the string.</param>
+        /// <param name="encoding">The encoding of the string.</param>
+        /// <returns></returns>
+        public string ReadText(int length, Encoding encoding)
+        {
+            return encoding.Decode(ReadBytes(length));
+        }
+
+        /// <summary>
+        /// Reads a table of strings of the given length using the given <see cref="Table.Encoding"/> and advances the position by that many bytes.
+        /// </summary>
+        /// <param name="stringLength">The length of the string.</param>
+        /// <param name="tableSize">The length of the table.</param>
+        /// <param name="encoding">The encoding of the string.</param>
+        /// <returns></returns>
+        public string[] ReadTextTable(int stringLength, int tableSize, Encoding encoding)
+        {
+            var table = new string[tableSize];
+            for (int i = 0; i < tableSize; i++)
+            {
+                table[i] = ReadText(stringLength, encoding);
+            }
+            return table;
+        }
+
+        /// <summary>
+        /// Reads a 2-byte BGR555 color from the stream and advances the position by two bytes.
+        /// </summary>
+        /// <returns>A <see cref="Color"/> read from the stream.</returns>
+        public Bgr555 ReadColor() => ReadUInt16();
+
+        /// <summary>
+        /// Reads the specified number of BGR555 colors from the stream and advances the position by twice that many bytes.
+        /// </summary>
+        /// <param name="colors">The number of expected colors in the palette.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">colors was not 16 or 256.</exception>
+        public Palette ReadPalette(int colors = 16)
+        {
+            Palette palette = new Palette(Bgr555.Black, colors);
+            for (int i = 0; i < colors; i++)
+            {
+                palette[i] = ReadColor();
+            }
+            return palette;
+        }
+
+        /// <summary>
+        /// Reads a compressed palette from the stream.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">the decompressed bytes were not the correct size (32 or 512).</exception>
+        public Palette ReadCompressedPalette()
+        {
+            var buffer = ReadCompressedBytes();
+
+            var palette = new Palette(Bgr555.Black, buffer.Length / 2);
+            for (int i = 0; i < palette.Length; i++)
+            {
+                palette[i] = new Bgr555((ushort)((buffer[i * 2 + 1] << 8) | buffer[i * 2]));
             }
 
-            // return to original stream position
-            stream.Seek(pos, SeekOrigin.Begin);
-
-            // return match (or not)
-            return match;
+            return palette;
         }
-        */
+
+        public Tileset ReadTiles4(int tiles)
+        {
+            return new Tileset(BitDepth.Decode4(ReadBytes(tiles * 32)));
+        }
+
+        public Tileset ReadTiles8(int tiles)
+        {
+            return new Tileset(BitDepth.Decode8(ReadBytes(tiles * 32)));
+        }
+
+        public Tileset ReadCompressedTiles4()
+        {
+            // TODO: Safety checks
+            return new Tileset(BitDepth.Decode4(ReadCompressedBytes()));
+        }
+
+        public Tileset ReadCompressedTiles8()
+        {
+            // TODO: Safety checks
+            return new Tileset(BitDepth.Decode8(ReadCompressedBytes()));
+        }
 
         public int Find(byte search, int count, int from = 0, int alignment = 1)
         {
@@ -372,65 +610,9 @@ namespace GBAHL
                 i += alignment;
             }
 
-            /*
-            byte[] buffer = ReadAllBytes();
-            for (int i = from; i < buffer.Length - count; i++)
-            {
-                int j = 0;
-                while (buffer[i + j] == search && j < count)
-                {
-                    j++;
-                }
-
-                if (j == count)
-                {
-                    return i;
-                }
-            }
-            */
-
             _stream.Position = streamPosition;
             return j;
         }
-
-        /*
-        public int Find(byte[] search, int startOffset = 0)
-        {
-            if (startOffset >= stream.Length - search.Length)
-                throw new Exception("Bad search start offset.");
-
-            if (search == null || search.Length == 0)
-                return startOffset;
-
-            int match = -1;
-            var pos = stream.Position;
-
-            for (int i = startOffset; i < stream.Length - search.Length; i++)
-            {
-                Seek(i);
-                byte[] buffer = ReadBytes(search.Length);
-
-                bool b = true;
-                for (int j = 0; j < search.Length; j++)
-                {
-                    if (search[j] != buffer[j])
-                    {
-                        b = false;
-                        break;
-                    }
-                }
-
-                if (b)
-                {
-                    match = i;
-                    break;
-                }
-            }
-
-            stream.Position = pos;
-            return match;
-        }
-        */
 
         public int Find(byte[] search, int from = 0, int alignment = 1)
         {
@@ -527,14 +709,14 @@ namespace GBAHL
         /// <summary>
         /// Gets the length of the stream.
         /// </summary>
-        public long Length => _stream.Length;
+        public int Length => (int)_stream.Length;
 
         /// <summary>
         /// Gets or sets the position of the stream.
         /// </summary>
-        public long Position
+        public int Position
         {
-            get => _stream.Position;
+            get => (int)_stream.Position;
             set => _stream.Position = value;
         }
 
