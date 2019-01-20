@@ -8,17 +8,17 @@ namespace GBAHL
     /// Represents a 32-bit pointer to a ROM address.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Ptr : IEquatable<Ptr>
+    public struct GbaPtr : IEquatable<GbaPtr>
     {
         /// <summary>
         /// Represents a pointer that has been initialized to zero.
         /// </summary>
-        public static Ptr Zero = new Ptr();
+        public static GbaPtr Zero = new GbaPtr();
 
         /// <summary>
         /// Represents a pointer that has an invalid value.
         /// </summary>
-        public static Ptr Invalid = new Ptr(-1);
+        public static GbaPtr Invalid = new GbaPtr(-1);
 
         /// <summary>
         /// The maximum size of a single ROM. This allows for banks 08 through 0D.
@@ -31,10 +31,10 @@ namespace GBAHL
         private int _address;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Ptr"/> struct for the specified address.
+        /// Initializes a new instance of the <see cref="GbaPtr"/> struct for the specified address.
         /// </summary>
         /// <param name="address">The address.</param>
-        public Ptr(int address)
+        public GbaPtr(int address)
         {
             _address = address;
         }
@@ -44,45 +44,45 @@ namespace GBAHL
         /// </summary>
         /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Ptr(int value)
+        public static implicit operator GbaPtr(int value)
         {
-            return Unsafe.As<int, Ptr>(ref value);
+            return Unsafe.As<int, GbaPtr>(ref value);
         }
 
         /// <summary>
-        /// Returns this <see cref="Ptr"/> as a 32-bit signed integer.
+        /// Returns this <see cref="GbaPtr"/> as a 32-bit signed integer.
         /// </summary>
         /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator int(Ptr value)
+        public static implicit operator int(GbaPtr value)
         {
-            return Unsafe.As<Ptr, int>(ref value);
+            return Unsafe.As<GbaPtr, int>(ref value);
         }
 
         /// <summary>
-        /// Determines whether this <see cref="Ptr"/> is equivalent to the specified <see cref="Ptr"/>.
+        /// Determines whether this <see cref="GbaPtr"/> is equivalent to the specified <see cref="GbaPtr"/>.
         /// </summary>
         /// <param name="other">A pointer to compare to.</param>
         /// <returns>
-        /// True if <paramref name="other"/> is a <see cref="Ptr"/>
-        /// with the same address as this <see cref="Ptr"/>; otherwise, false.
+        /// True if <paramref name="other"/> is a <see cref="GbaPtr"/>
+        /// with the same address as this <see cref="GbaPtr"/>; otherwise, false.
         /// </returns>
-        public bool Equals(Ptr other)
+        public bool Equals(GbaPtr other)
         {
             return _address == other._address;
         }
 
         /// <summary>
-        /// Determines whether this <see cref="Ptr"/> is equivalent to the specified object.
+        /// Determines whether this <see cref="GbaPtr"/> is equivalent to the specified object.
         /// </summary>
         /// <param name="obj">An object to compare to.</param>
         /// <returns>
-        /// True if <paramref name="obj"/> is a <see cref="Ptr"/>
-        /// with the same address as this <see cref="Ptr"/>; otherwise, false.
+        /// True if <paramref name="obj"/> is a <see cref="GbaPtr"/>
+        /// with the same address as this <see cref="GbaPtr"/>; otherwise, false.
         /// </returns>
         public override bool Equals(object obj)
         {
-            return (obj is Ptr) && Equals((Ptr)obj);
+            return (obj is GbaPtr) && Equals((GbaPtr)obj);
         }
 
         /// <summary>
@@ -95,16 +95,16 @@ namespace GBAHL
         }
 
         /// <summary>
-        /// Returns a string representation of this <see cref="Ptr"/>.
+        /// Returns a string representation of this <see cref="GbaPtr"/>.
         /// </summary>
-        /// <returns>a string representation of this <see cref="Ptr"/>.</returns>
+        /// <returns>a string representation of this <see cref="GbaPtr"/>.</returns>
         public override string ToString()
         {
             return $"0x{_address:X6}";
         }
 
         /// <summary>
-        /// Gets the bank of this <see cref="Ptr"/>.
+        /// Gets the bank of this <see cref="GbaPtr"/>.
         /// </summary>
         public byte Bank
         {
@@ -120,7 +120,7 @@ namespace GBAHL
         }
 
         /// <summary>
-        /// Gets or sets the address of this <see cref="Ptr"/>.
+        /// Gets or sets the address of this <see cref="GbaPtr"/>.
         /// </summary>
         public int Address
         {
@@ -135,7 +135,7 @@ namespace GBAHL
         }
 
         /// <summary>
-        /// Determines whether this <see cref="Ptr"/> is valid.
+        /// Determines whether this <see cref="GbaPtr"/> is valid.
         /// </summary>
         public bool IsValid => _address >= 0 && _address <= MaximumRomSize;
     }

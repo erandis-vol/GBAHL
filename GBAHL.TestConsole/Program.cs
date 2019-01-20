@@ -37,12 +37,12 @@ namespace GBAHL.TestConsole
 
         static void TestPointer()
         {
-            Ptr address1 = 0x0123456;
-            Ptr address2 = 0x2ABCDEF;
-            Ptr address3 = Ptr.Invalid;
-            Ptr address4 = Ptr.Zero;
+            GbaPtr address1 = 0x0123456;
+            GbaPtr address2 = 0x2ABCDEF;
+            GbaPtr address3 = GbaPtr.Invalid;
+            GbaPtr address4 = GbaPtr.Zero;
 
-            Console.WriteLine(Marshal.SizeOf<Ptr>()); // 4
+            Console.WriteLine(Marshal.SizeOf<GbaPtr>()); // 4
 
             Console.WriteLine("{0:X2}", address1.Bank); // 08
             Console.WriteLine("{0:X2}", address2.Bank); // 0A
