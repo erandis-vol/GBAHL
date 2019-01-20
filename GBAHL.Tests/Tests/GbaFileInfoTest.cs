@@ -21,7 +21,7 @@ namespace GBAHL.Tests.Tests
         {
             if (Program.GameFilePath != null)
             {
-                propertyGrid1.SelectedObject = new GbaFileInfo(Program.GameFilePath);
+                propertyGrid1.SelectedObject = new RomFileInfo(Program.GameFilePath);
             }
         }
     }

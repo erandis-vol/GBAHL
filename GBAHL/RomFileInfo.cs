@@ -8,14 +8,14 @@ namespace GBAHL
     /// <summary>
     /// Provides methods and properties for handling GBA ROM files.
     /// </summary>
-    public sealed class GbaFileInfo
+    public sealed class RomFileInfo
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GbaFileInfo"/> class for the specified file.
+        /// Initializes a new instance of the <see cref="RomFileInfo"/> class for the specified file.
         /// </summary>
         /// <param name="filename">The full name and path of the file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="filename"/> is null.</exception>
-        public GbaFileInfo(string filename)
+        public RomFileInfo(string filename)
         {
             FileName = filename ?? throw new ArgumentNullException(nameof(filename));
             if (Exists)

@@ -46,12 +46,12 @@ namespace GBAHL.TestConsole
             Console.WriteLine("{0:X2} {1}", gbAddress2.Bank, gbAddress2.ToString("X6")); // 42 109DCA
             Console.WriteLine("{0:X2} {1}", gbAddress3.Bank, gbAddress3.ToString("X6")); // 00 000000
 
-            GbaPtr gbaAddress1 = 0x0123456;
-            GbaPtr gbaAddress2 = 0x2ABCDEF;
-            GbaPtr gbaAddress3 = GbaPtr.Invalid;
-            GbaPtr gbaAddress4 = GbaPtr.Zero;
+            Ptr gbaAddress1 = 0x0123456;
+            Ptr gbaAddress2 = 0x2ABCDEF;
+            Ptr gbaAddress3 = Ptr.Invalid;
+            Ptr gbaAddress4 = Ptr.Zero;
 
-            Console.WriteLine(Marshal.SizeOf<GbaPtr>()); // 4
+            Console.WriteLine(Marshal.SizeOf<Ptr>()); // 4
 
             Console.WriteLine("{0:X2} {1}", gbaAddress1.Bank, gbaAddress1.ToString("X8")); // 08 00123456
             Console.WriteLine("{0:X2} {1}", gbaAddress2.Bank, gbaAddress2.ToString("X8")); // 0A 02ABCDEF
