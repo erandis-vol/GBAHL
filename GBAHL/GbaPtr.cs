@@ -97,10 +97,20 @@ namespace GBAHL
         /// <summary>
         /// Returns a string representation of this <see cref="GbaPtr"/>.
         /// </summary>
-        /// <returns>a string representation of this <see cref="GbaPtr"/>.</returns>
+        /// <returns>A string representation of this <see cref="GbaPtr"/>.</returns>
         public override string ToString()
         {
-            return $"0x{_address:X6}";
+            return _address.ToString();
+        }
+
+        /// <summary>
+        /// Returns a string representation of this <see cref="GbaPtr"/> using the specified format.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns>A string representation of this <see cref="GbaPtr"/>.</returns>
+        public string ToString(string format)
+        {
+            return _address.ToString(format);
         }
 
         /// <summary>
