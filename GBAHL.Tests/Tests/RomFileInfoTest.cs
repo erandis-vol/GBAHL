@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace GBAHL.Tests.Tests
 {
-    public partial class GbaFileInfoTest : UserControl
+    public partial class RomFileInfoTest : UserControl
     {
-        public GbaFileInfoTest()
+        public RomFileInfoTest()
         {
             InitializeComponent();
         }

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace GBAHL.Compression
 {
-    public static class LZSS
+    public static class LZ
     {
         public const byte Identifier = 0x10;
 
@@ -48,7 +48,7 @@ namespace GBAHL.Compression
             return result;
         }
 
-        // compression originally by link12552
+        // Compression originally by link12552
 
         public static byte[] Compress(byte[] bytes)
         {
@@ -61,13 +61,13 @@ namespace GBAHL.Compression
 
             int bestLength = 0;
 
-            // Adds the Lz77 header to the bytes 0x10 3 bytes size reversed
+            // Adds the LZ header to the bytes
             compressed.Add(Identifier);
             compressed.Add((byte)bytes.Length);
             compressed.Add((byte)(bytes.Length >> 8));
             compressed.Add((byte)(bytes.Length >> 16));
 
-            // Lz77 Compression requires SOME starting data, so we provide the first 2 bytes
+            // LZ Compression requires SOME starting data, so we provide the first 2 bytes
             preCompressed.Add(bytes[0]);
             preCompressed.Add(bytes[1]);
 
@@ -223,8 +223,6 @@ namespace GBAHL.Compression
                             match = -1;
                             pos++;
                         }
-
-
                     }
                     else
                     {
@@ -238,7 +236,6 @@ namespace GBAHL.Compression
             {
                 return -1;
             }
-
         }
     }
 }

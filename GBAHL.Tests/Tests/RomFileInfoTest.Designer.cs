@@ -1,6 +1,6 @@
 ﻿namespace GBAHL.Tests.Tests
 {
-    partial class GbaFileInfoTest
+    partial class RomFileInfoTest
     {
         /// <summary> 
         /// Required designer variable.

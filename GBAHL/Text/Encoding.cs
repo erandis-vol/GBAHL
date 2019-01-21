@@ -60,7 +60,7 @@ namespace GBAHL.Text
         /// <param name="str">The string to be split.</param>
         /// <returns></returns>
         /// <exception cref="InvalidDataException"><paramref name="str"/> could not be split.</exception>
-        public static IEnumerable<string> Split(string str)
+        internal static IEnumerable<string> Split(string str)
         {
             for (int i = 0; i < str.Length; i++)
             {
@@ -99,6 +99,11 @@ namespace GBAHL.Text
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the terminating character.
+        /// </summary>
+        public virtual byte TerminatingChar => 0xFF;
 
         /// <summary>
         /// Represents a read-only stream of bytes.

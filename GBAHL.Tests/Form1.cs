@@ -26,7 +26,7 @@ namespace GBAHL.Tests
             var commonNode = new TreeNode("Common");
             commonNode.Nodes.Add(new TreeNode {
                 Text = "GbaFileInfo",
-                Tag = new GbaFileInfoTest()
+                Tag = new RomFileInfoTest()
             });
 
             var spriteNode = new TreeNode("Sprites");

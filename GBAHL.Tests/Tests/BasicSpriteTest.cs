@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using GBAHL.Drawing;
 using GBAHL.IO;
+using System;
 using System.IO;
-using GBAHL.Drawing;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace GBAHL.Tests.Tests
 {
@@ -41,7 +34,7 @@ namespace GBAHL.Tests.Tests
                 Palette palette;
 
                 // Load the sprite and palette
-                using (var gb = new GbaBinaryStream(File.Open(Program.GameFilePath, FileMode.Open, FileAccess.ReadWrite)))
+                using (var gb = new RomReader(File.Open(Program.GameFilePath, FileMode.Open, FileAccess.Read)))
                 {
                     gb.Seek(tilesetOffset);
                     tileset = gb.ReadCompressedTiles4();

@@ -308,7 +308,7 @@ namespace GBAHL.IO
         public void WriteCompressedBytes(byte[] buffer)
         {
             // TODO: Allow choice of compression method
-            var compressed = Compression.LZSS.Compress(buffer);
+            var compressed = Compression.LZ.Compress(buffer);
             WriteBytes(compressed);
         }
 

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace GBAHL.Compression
 {
-    public static class RLE
+    public static class RL
     {
         public const byte Identifier = 0x30;
 

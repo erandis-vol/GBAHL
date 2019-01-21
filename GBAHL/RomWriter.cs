@@ -250,7 +250,12 @@ namespace GBAHL
         public void WriteString(string str)
         {
             // TODO: We can avoid allocation here.
-            WriteBytes(System.Text.Encoding.UTF8.GetBytes(str));
+            //WriteBytes(System.Text.Encoding.UTF8.GetBytes(str));
+
+            foreach (var c in str)
+            {
+                WriteByte((byte)c);
+            }
         }
 
         /// <summary>
@@ -281,7 +286,7 @@ namespace GBAHL
         public void WriteCompressedBytes(byte[] buffer)
         {
             // TODO: Allow choice of compression method
-            var compressed = Compression.LZSS.Compress(buffer);
+            var compressed = Compression.LZ.Compress(buffer);
             WriteBytes(compressed);
         }
 
@@ -292,13 +297,15 @@ namespace GBAHL
 
         public void WriteText(string str, int length, Encoding encoding)
         {
-            // convert string
+            // Encode the string
             byte[] buffer = encoding.Encode(str);
 
-            // ensure proper length
+            // Ensure proper length
             if (buffer.Length != length)
                 Array.Resize(ref buffer, length);
-            buffer[length - 1] = 0xFF;
+
+            // Ensure the string is terminated
+            buffer[length - 1] = encoding.TerminatingChar;
 
             WriteBytes(buffer);
         }
@@ -330,9 +337,9 @@ namespace GBAHL
             // Copy colors to buffer
             for (int i = 0; i < palette.Length; i++)
             {
-                var bgr = palette[i].ToUInt16();
+                ushort bgr = palette[i].ToUInt16();
 
-                buffer[i * 2] = (byte)bgr;
+                buffer[i * 2]     = (byte)bgr;
                 buffer[i * 2 + 1] = (byte)(bgr >> 8);
             }
 
