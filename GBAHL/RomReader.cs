@@ -549,7 +549,7 @@ namespace GBAHL
 
         public Tileset ReadTiles8(int tiles)
         {
-            return new Tileset(BitDepth.Decode8(ReadBytes(tiles * 32)));
+            return new Tileset(BitDepth.Decode8(ReadBytes(tiles * 64)));
         }
 
         public Tileset ReadCompressedTiles4()
