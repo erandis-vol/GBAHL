@@ -120,6 +120,72 @@ namespace GBAHL
             return _address.ToString(format);
         }
 
+        public static bool operator true(Ptr ptr) => ptr.IsValid;
+
+        public static bool operator false(Ptr ptr) => !ptr.IsValid;
+
+        public static bool operator ==(Ptr p1, Ptr p2) => p1.Equals(p2);
+
+        public static bool operator !=(Ptr p1, Ptr p2) => !(p1 == p2);
+
+        public static bool operator >=(Ptr p1, Ptr p2) => p1.Address >= p2.Address;
+
+        public static bool operator <=(Ptr p1, Ptr p2) => p1.Address <= p2.Address;
+
+        public static bool operator >(Ptr p1, Ptr p2) => p1.Address > p2.Address;
+
+        public static bool operator <(Ptr p1, Ptr p2) => p1.Address < p2.Address;
+
+        public static Ptr operator +(Ptr p1, Ptr p2)
+        {
+            return new Ptr(p1.Address + p2.Address);
+        }
+
+        public static Ptr operator +(Ptr ptr, int value)
+        {
+            return new Ptr(ptr.Address + value);
+        }
+
+        public static Ptr operator -(Ptr ptr, int value)
+        {
+            return new Ptr(ptr.Address - value);
+        }
+
+        public static Ptr operator -(Ptr p1, Ptr p2)
+        {
+            return new Ptr(p1.Address - p2.Address);
+        }
+
+        public static Ptr operator *(Ptr p1, Ptr p2)
+        {
+            return new Ptr(p1.Address * p2.Address);
+        }
+
+        public static Ptr operator *(Ptr ptr, int value)
+        {
+            return new Ptr(ptr.Address * value);
+        }
+
+        public static Ptr operator /(Ptr p1, Ptr p2)
+        {
+            return new Ptr(p1.Address / p2.Address);
+        }
+
+        public static Ptr operator /(Ptr ptr, int value)
+        {
+            return new Ptr(ptr.Address / value);
+        }
+
+        public static Ptr operator %(Ptr p1, Ptr p2)
+        {
+            return new Ptr(p1.Address % p2.Address);
+        }
+
+        public static Ptr operator %(Ptr ptr, int value)
+        {
+            return new Ptr(ptr.Address % value);
+        }
+
         /// <summary>
         /// Gets the bank of this <see cref="Ptr"/>.
         /// </summary>
