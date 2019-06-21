@@ -5,6 +5,8 @@ namespace GBAHL.Asm
 {
     public class AssemblyWriter : IDisposable
     {
+        private const string DefaultIndentation = "    ";
+
         private TextWriter writer;
 
         public AssemblyWriter()
@@ -134,8 +136,7 @@ namespace GBAHL.Asm
         
         private void WriteIndentation()
         {
-            // TODO: Allow customization of indentation style
-            writer.Write('\t');
+            writer.Write(Indentation ?? DefaultIndentation);
         }
 
         private void WriteLabel(AssemblyLine line)
@@ -163,6 +164,11 @@ namespace GBAHL.Asm
 
             return base.ToString();
         }
+
+        /// <summary>
+        /// Gets or sets the string used for indentation.
+        /// </summary>
+        public string Indentation { get; set; }
 
         /// <summary>
         /// Gets or sets whether instructions should be indented.
