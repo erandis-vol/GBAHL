@@ -9,6 +9,7 @@ namespace GBAHL.Tests.Tests
 {
     public partial class BasicSpriteTest : UserControl
     {
+        private SpriteRenderer renderer;
         private DirectBitmap image;
 
         public BasicSpriteTest()
@@ -51,10 +52,16 @@ namespace GBAHL.Tests.Tests
                 if (image != null)
                 {
                     image.Dispose();
+                    image = null;
                 }
 
                 // Display and display the sprite
-                pictureBox1.Image = image = SpriteRenderer.Draw(sprite);
+                if (renderer == null)
+                {
+                    renderer = new SpriteRenderer();
+                }
+
+                pictureBox1.Image = image = renderer.Draw(sprite);
 
                 // Collect timing information
                 watch.Stop();

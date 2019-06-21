@@ -2,55 +2,53 @@
 
 namespace GBAHL.Drawing
 {
-    /// <summary>
-    /// Provides methods for drawing sprites.
-    /// </summary>
-    public static class SpriteRenderer
+    public class SpriteRenderer : ISpriteRenderer<DirectBitmap>
     {
-        /// <summary>
-        /// Returns a new <see cref="FastBitmap"/> representing the sprite.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="sprite"/> is null.</exception>
-        public static DirectBitmap Draw(Sprite sprite)
+        public DirectBitmap Draw(Sprite sprite) => Draw(sprite, 0, 0);
+
+        public DirectBitmap Draw(Sprite sprite, int x, int y)
+        {
+            var image = new DirectBitmap(sprite.Width * 8, sprite.Height * 8);
+            Draw(image, sprite, x, y);
+            return image;
+        }
+
+        public void Draw(DirectBitmap image, Sprite sprite, int x, int y)
         {
             if (sprite == null)
                 throw new ArgumentNullException(nameof(sprite));
 
-            if (sprite.Tileset.Length == 0)
-                throw new ArgumentException("Sprite is empty.");
+            Tileset tileset = sprite.Tileset;
+            Palette palette = sprite.Palette;
 
-            var db = new DirectBitmap(sprite.Width << 3, sprite.Height << 3);
-
-            var tileset = sprite.Tileset;
-            var palette = sprite.Palette;
-            var columns = sprite.Width;
+            if (tileset.Length == 0)
+                throw new ArgumentException("Sprite contains no tiles.", nameof(sprite));
 
             for (int i = 0; i < tileset.Length; i++)
             {
-                // Get the destination
-                var x = i % columns;
-                var y = i / columns;
-
-                // Get the tile to draw
-                ref var tile = ref tileset[i];
-
-                // Draw the tile
-                for (int j = 0; j < 8; j++)
-                {
-                    for (int k = 0; k < 8; k++)
-                    {
-                        db.SetPixel(x * 8 + k, y * 8 + j, palette[tile[k, j]].ToColor());
-                    }
-                }
+                DrawTile(image, ref tileset[i], palette, i % sprite.Width * 8, i / sprite.Width * 8);
             }
 
             if (sprite.HasExtraTiles)
             {
-                // TODO
-            }
+                Tile empty = new Tile();
 
-            return db;
+                for (int i = tileset.Length; i < sprite.Width * sprite.Height; i++)
+                {
+                    DrawTile(null, ref empty, palette, x + i % sprite.Width * 8, y + i / sprite.Width * 8);
+                }
+            }
+        }
+
+        public void DrawTile(DirectBitmap image, ref Tile tile, Palette palette, int x, int y)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                for (int k = 0; k < 8; k++)
+                {
+                    image.SetPixel(x + k, y + j, palette[tile[k, j]].ToColor());
+                }
+            }
         }
     }
 }

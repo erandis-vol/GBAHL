@@ -68,7 +68,12 @@ namespace GBAHL.Drawing
         {
             if (!isDisposed)
             {
-                Bitmap.Dispose();
+                if (Bitmap != null)
+                {
+                    Bitmap.Dispose();
+                    Bitmap = null;
+                }
+                
                 Handle.Free();
 
                 isDisposed = true;
@@ -119,22 +124,23 @@ namespace GBAHL.Drawing
         /// Creates a GDI+ drawing surface for the <see cref="DirectBitmap"/>.
         /// </summary>
         /// <returns></returns>
-        public Graphics CreateGraphics()
-        {
-            return Graphics.FromImage(Bitmap);
-        }
+        public Graphics CreateGraphics() => Graphics.FromImage(Bitmap);
 
+        /// <summary>
+        /// Converts the <see cref="DirectBitmap"/> to a <see cref="System.Drawing.Bitmap"/>.
+        /// </summary>
+        /// <param name="fb"></param>
         public static implicit operator Bitmap(DirectBitmap fb) => fb.Bitmap;
 
         /// <summary>
         /// Gets the bitmap wrapped by this <see cref="DirectBitmap"/>
         /// </summary>
-        private Bitmap Bitmap { get; }
+        private Bitmap Bitmap { get; set; }
 
         /// <summary>
         /// Gets the handle of the pixels.
         /// </summary>
-        private GCHandle Handle { get; }
+        private GCHandle Handle { get; set; }
 
         /// <summary>
         /// Gets the pixels of this <see cref="DirectBitmap"/>.
