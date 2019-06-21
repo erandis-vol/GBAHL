@@ -53,6 +53,7 @@
     <Compile Include="Asm\AssemblyWriter.cs" />
     <Compile Include="Drawing\BitDepth.cs" />
     <Compile Include="Drawing\Bgr555.cs" />
+    <Compile Include="Drawing\ISpriteRenderer.cs" />
     <Compile Include="Drawing\Palette.cs" />
     <Compile Include="Drawing\Sprite.cs" />
     <Compile Include="Drawing\Tile.cs" />
